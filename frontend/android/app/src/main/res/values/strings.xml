@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Capital Hub</string>
+    <string name="title_activity_main">Capital Hub</string>
+    <string name="package_name">com.capitalhub.app</string>
+    <string name="custom_url_scheme">com.capitalhub.app</string>
+</resources>
