@@ -1,0 +1,101 @@
+name: 'Build and Release Desktop Apps'
+
+on:
+  push:
+    tags:
+      - 'v*' # Triggers on version tags like v1.0.0, v1.1.0, etc.
+  workflow_dispatch: # Allows manual trigger from GitHub UI
+
+jobs:
+  build-tauri:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: 'macos-latest' # macOS (Intel)
+            args: '--target x86_64-apple-darwin'
+          - platform: 'macos-latest' # macOS (Apple Silicon)
+            args: '--target aarch64-apple-darwin'
+          - platform: 'ubuntu-22.04' # Linux
+            args: ''
+          - platform: 'windows-latest' # Windows
+            args: ''
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          # Those targets are only used on macos runners so it's in an `if` to slightly speed up windows and linux builds.
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - name: Install dependencies (Ubuntu only)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: frontend
+
+      - name: Build Tauri app
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          projectPath: frontend
+          tagName: ${{ github.ref_name }} # Use the tag name as release name
+          releaseName: 'CapitalHub ${{ github.ref_name }}'
+          releaseBody: |
+            ## 🚀 CapitalHub Desktop Release ${{ github.ref_name }}
+            
+            ### 📦 Instaladores Disponibles
+            
+            - **Windows**: Descarga el archivo `.msi` o `-setup.exe`
+            - **macOS**: Descarga el archivo `.dmg` (Intel o Apple Silicon según tu Mac)
+            - **Linux**: Descarga el archivo `.AppImage` o `.deb`
+            
+            ### ✨ Características
+            
+            - ✅ Header horizontal con navegación
+            - ✅ Menú responsive con hamburguesa
+            - ✅ Items "Dashboard" y "Formación" ocultos
+            - ✅ Mismo diseño que la versión web
+            - ✅ Funcionalidad completa
+            
+            ### 📝 Instalación
+            
+            **Windows:**
+            1. Descarga `capital-hub_${{ github.ref_name }}_x64_en-US.msi`
+            2. Ejecuta el instalador
+            3. Sigue el asistente de instalación
+            
+            **macOS:**
+            1. Descarga `capital-hub_${{ github.ref_name }}_x64.dmg` (Intel) o `capital-hub_${{ github.ref_name }}_aarch64.dmg` (Apple Silicon)
+            2. Abre el archivo .dmg
+            3. Arrastra CapitalHub a la carpeta Aplicaciones
+            
+            **Linux:**
+            1. Descarga `capital-hub_${{ github.ref_name }}_amd64.AppImage`
+            2. Dale permisos de ejecución: `chmod +x capital-hub_*.AppImage`
+            3. Ejecuta: `./capital-hub_*.AppImage`
+            
+            ---
+            
+            **Desarrollado con ❤️ usando Tauri + React**
+          releaseDraft: false
+          prerelease: false
+          args: ${{ matrix.args }}
