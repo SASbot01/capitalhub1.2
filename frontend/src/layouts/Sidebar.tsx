@@ -13,7 +13,7 @@ interface MenuItem {
 }
 
 const repMenu: MenuItem[] = [
-  { label: "Inicio", to: "/rep/home" },
+  { label: "Inicio", to: "/home" },
   { label: "Dashboard", to: "/rep/dashboard" },
   { label: "Perfil", to: "/rep/profile" },
   { label: "Ofertas", to: "/rep/offers" },
@@ -23,7 +23,7 @@ const repMenu: MenuItem[] = [
 ];
 
 const companyMenu: MenuItem[] = [
-  { label: "Inicio", to: "/company/home" },
+  { label: "Inicio", to: "/home" },
   { label: "Dashboard", to: "/company/dashboard" },
   { label: "Ofertas", to: "/company/jobs" },
   { label: "Aplicaciones", to: "/company/applications" },
@@ -40,12 +40,8 @@ export default function Sidebar({ userName, userRole }: SidebarProps) {
   const [pendingCount, setPendingCount] = useState(0);
 
   useEffect(() => {
-    // Definir la función de fetch
     const fetchNotifications = async () => {
       try {
-        // Importar apiClient dinámicamente o usar fetch directo si es simple, 
-        // pero mejor usar lo que ya hay. Asumimos que apiClient está disponible en el scope o importado.
-        // Para no romper imports, usaremos fetch con el token.
         const token = localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken");
         if (!token) return;
 
@@ -62,22 +58,22 @@ export default function Sidebar({ userName, userRole }: SidebarProps) {
     };
 
     fetchNotifications();
-    // Polling cada 60s
     const interval = setInterval(fetchNotifications, 60000);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <aside className="w-56 bg-white border-r border-neutral-200 flex flex-col justify-between py-6">
+    <aside className="w-56 bg-panel border-r border-graphite flex flex-col justify-between py-6">
       <div>
         {/* Logo + título */}
         <div className="px-5 mb-6 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-2xl bg-black text-white flex items-center justify-center text-xs font-semibold">
-            C
+          {/* CH Monogram */}
+          <div className="w-8 h-8 rounded-lg bg-offwhite text-carbon flex items-center justify-center text-sm font-display font-extrabold tracking-tight">
+            CH
           </div>
           <div>
-            <p className="text-xs font-semibold leading-tight">CapitalHub</p>
-            <p className="text-[11px] text-neutral-500 leading-tight">
+            <p className="text-xs font-display font-bold tracking-logo text-offwhite uppercase">Capital Hub</p>
+            <p className="text-[11px] text-muted leading-tight">
               {isCompany ? "Panel empresa" : "Panel comercial"}
             </p>
           </div>
@@ -91,21 +87,17 @@ export default function Sidebar({ userName, userRole }: SidebarProps) {
               to={item.to}
               className={({ isActive }) =>
                 [
-                  "block px-4 py-2.5 text-xs rounded-full transition flex justify-between items-center",
+                  "block px-4 py-2.5 text-xs rounded-lg transition flex justify-between items-center",
                   isActive
-                    ? "bg-black text-white"
-                    : "text-neutral-700 hover:bg-neutral-100",
+                    ? "bg-accent text-offwhite"
+                    : "text-muted hover:bg-graphite hover:text-offwhite",
                 ].join(" ")
               }
             >
               <span>{item.label}</span>
               {/* Badge solo en 'Aplicaciones' si hay count > 0 */}
               {item.label === "Aplicaciones" && pendingCount > 0 && (
-                <span className={`flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full text-[9px] font-bold ${
-                  // Si el padre está activo (bg-black), el badge debe contrastar
-                  // location.pathname === item.to ? 'bg-red-500 text-white' : 'bg-red-500 text-white'
-                  'bg-red-500 text-white'
-                  }`}>
+                <span className="flex items-center justify-center min-w-[16px] h-4 px-1 rounded text-[9px] font-bold bg-accent-glow text-accent border border-accent">
                   {pendingCount}
                 </span>
               )}
@@ -115,18 +107,18 @@ export default function Sidebar({ userName, userRole }: SidebarProps) {
       </div>
 
       {/* Footer usuario */}
-      <div className="px-5 pt-4 border-t border-neutral-200">
-        <p className="text-[11px] text-neutral-500 mb-1">Sesión iniciada</p>
+      <div className="px-5 pt-4 border-t border-graphite">
+        <p className="text-[11px] text-muted mb-1">Sesión iniciada</p>
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs font-medium truncate max-w-[120px]">
+            <p className="text-xs font-medium text-offwhite truncate max-w-[120px]">
               {userName}
             </p>
-            <p className="text-[11px] text-neutral-500 truncate max-w-[120px]">
+            <p className="text-[11px] text-muted truncate max-w-[120px]">
               {userRole}
             </p>
           </div>
-          <button className="text-[11px] text-neutral-500 hover:text-neutral-900">
+          <button className="text-[11px] text-muted hover:text-offwhite transition">
             Cerrar sesión
           </button>
         </div>

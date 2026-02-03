@@ -38,7 +38,7 @@ export default function RegisterPage() {
 
         try {
             const payload = { firstName, lastName, email, password };
-            
+
             let res;
             if (userType === "rep") {
                 res = await registerRep(payload);
@@ -46,7 +46,6 @@ export default function RegisterPage() {
                 res = await registerCompany(payload);
             }
 
-            // Redirigir según el rol
             if (res.role === "REP") {
                 navigate("/rep/dashboard");
             } else if (res.role === "COMPANY") {
@@ -63,16 +62,16 @@ export default function RegisterPage() {
     };
 
     return (
-        <div className="bg-white rounded-3xl shadow-sm border border-neutral-200 p-8">
+        <div className="bg-panel rounded-xl shadow-card border border-graphite p-8">
             {/* TABS REP / COMPANY */}
-            <div className="flex mb-6 bg-neutral-100 rounded-full p-1">
+            <div className="flex mb-6 bg-carbon rounded-lg p-1">
                 <button
                     type="button"
                     onClick={() => setUserType("rep")}
-                    className={`flex-1 py-2 text-sm font-medium rounded-full transition ${
+                    className={`flex-1 py-2 text-sm font-medium rounded-lg transition ${
                         userType === "rep"
-                            ? "bg-white shadow-sm text-neutral-900"
-                            : "text-neutral-500 hover:text-neutral-800"
+                            ? "bg-accent text-offwhite"
+                            : "text-muted hover:text-offwhite"
                     }`}
                 >
                     Comercial
@@ -80,22 +79,22 @@ export default function RegisterPage() {
                 <button
                     type="button"
                     onClick={() => setUserType("company")}
-                    className={`flex-1 py-2 text-sm font-medium rounded-full transition ${
+                    className={`flex-1 py-2 text-sm font-medium rounded-lg transition ${
                         userType === "company"
-                            ? "bg-white shadow-sm text-neutral-900"
-                            : "text-neutral-500 hover:text-neutral-800"
+                            ? "bg-accent text-offwhite"
+                            : "text-muted hover:text-offwhite"
                     }`}
                 >
                     Empresa
                 </button>
             </div>
 
-            <h2 className="text-xl font-bold text-center mb-2">
+            <h2 className="text-xl font-display font-bold text-center text-offwhite mb-2">
                 {userType === "rep" ? "Regístrate como Comercial" : "Registra tu Empresa"}
             </h2>
-            <p className="text-sm text-neutral-500 text-center mb-6">
-                {userType === "rep" 
-                    ? "Encuentra oportunidades como Setter, Closer o SDR" 
+            <p className="text-sm text-muted text-center mb-6">
+                {userType === "rep"
+                    ? "Encuentra oportunidades como Setter, Closer o SDR"
                     : "Publica ofertas y encuentra el mejor talento comercial"}
             </p>
 
@@ -142,7 +141,7 @@ export default function RegisterPage() {
                 />
 
                 {error && (
-                    <p className="text-xs text-red-600 bg-red-50 border border-red-100 rounded-2xl px-3 py-2">
+                    <p className="text-xs text-red-400 bg-red-900/30 border border-red-700/30 rounded-lg px-3 py-2">
                         {error}
                     </p>
                 )}
@@ -154,22 +153,22 @@ export default function RegisterPage() {
                 </div>
             </form>
 
-            <div className="mt-4 text-center text-xs text-neutral-600">
+            <div className="mt-4 text-center text-xs text-muted">
                 ¿Ya tienes cuenta?{" "}
                 <button
                     type="button"
                     onClick={() => navigate("/login")}
-                    className="font-semibold text-neutral-900 hover:underline underline-offset-2"
+                    className="font-semibold text-offwhite hover:underline underline-offset-2"
                 >
                     Iniciar Sesión
                 </button>
             </div>
 
             {/* Info adicional según tipo */}
-            <div className="mt-4 pt-3 border-t border-neutral-200 text-[11px] text-neutral-500 text-center">
-                {userType === "rep" 
-                    ? "🎯 Después de registrarte podrás completar tu perfil y aplicar a ofertas."
-                    : "🏢 Después de registrarte podrás publicar ofertas de trabajo."}
+            <div className="mt-4 pt-3 border-t border-graphite text-[11px] text-muted text-center">
+                {userType === "rep"
+                    ? "Después de registrarte podrás completar tu perfil y aplicar a ofertas."
+                    : "Después de registrarte podrás publicar ofertas de trabajo."}
             </div>
         </div>
     );

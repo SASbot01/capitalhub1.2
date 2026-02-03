@@ -107,7 +107,7 @@ export default function CompanySettingsPage() {
       <div className="space-y-6 mb-10">
         <Topbar title="Configuración" subtitle="Cargando..." />
         <div className="flex items-center justify-center min-h-[300px]">
-          <div className="w-8 h-8 border-4 border-neutral-200 border-t-neutral-800 rounded-full animate-spin"></div>
+          <div className="w-8 h-8 border-4 border-graphite border-t-accent rounded-full animate-spin"></div>
         </div>
       </div>
     );
@@ -117,7 +117,7 @@ export default function CompanySettingsPage() {
     return (
       <div className="space-y-6 mb-10">
         <Topbar title="Configuración" subtitle="Error" />
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl text-sm">
+        <div className="bg-red-900/30 border border-red-700/30 text-red-400 px-4 py-3 rounded-2xl text-sm">
           Error al cargar la configuración.
           <button onClick={refetch} className="underline ml-2">Reintentar</button>
         </div>
@@ -135,8 +135,8 @@ export default function CompanySettingsPage() {
       {/* Mensaje de estado */}
       {saveMessage && (
         <div className={`px-4 py-3 rounded-2xl text-sm ${saveMessage.type === "success"
-          ? "bg-emerald-50 border border-emerald-200 text-emerald-700"
-          : "bg-red-50 border border-red-200 text-red-700"
+          ? "bg-emerald-900/30 border border-emerald-700/30 text-emerald-400"
+          : "bg-red-900/30 border border-red-700/30 text-red-400"
           }`}>
           {saveMessage.text}
         </div>
@@ -144,16 +144,16 @@ export default function CompanySettingsPage() {
 
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* INFORMACIÓN DE LA EMPRESA */}
-        <div className="bg-white rounded-3xl shadow-sm border border-neutral-200 px-6 py-6">
-          <h2 className="text-sm font-semibold mb-4 text-neutral-900">
+        <div className="bg-panel rounded-3xl shadow-card border border-graphite px-6 py-6">
+          <h2 className="text-sm font-semibold mb-4 text-offwhite">
             Información de la empresa
           </h2>
 
           <div className="space-y-3">
             <div>
-              <label className="block text-[11px] text-neutral-500 mb-1">Nombre de la empresa</label>
+              <label className="block text-[11px] text-muted mb-1">Nombre de la empresa</label>
               <input
-                className="w-full rounded-2xl border border-neutral-200 px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-neutral-900 focus:border-neutral-900 bg-neutral-50"
+                className="w-full rounded-2xl border border-graphite px-3 py-2 text-xs text-offwhite outline-none focus:ring-1 focus:ring-accent focus:border-accent bg-carbon"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Nombre de tu empresa"
@@ -162,9 +162,9 @@ export default function CompanySettingsPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-[11px] text-neutral-500 mb-1">Industria</label>
+                <label className="block text-[11px] text-muted mb-1">Industria</label>
                 <select
-                  className="w-full rounded-2xl border border-neutral-200 px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-neutral-900 focus:border-neutral-900 bg-neutral-50"
+                  className="w-full rounded-2xl border border-graphite px-3 py-2 text-xs text-offwhite outline-none focus:ring-1 focus:ring-accent focus:border-accent bg-carbon"
                   value={industry}
                   onChange={(e) => setIndustry(e.target.value)}
                 >
@@ -181,9 +181,9 @@ export default function CompanySettingsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-[11px] text-neutral-500 mb-1">Tamaño</label>
+                <label className="block text-[11px] text-muted mb-1">Tamaño</label>
                 <select
-                  className="w-full rounded-2xl border border-neutral-200 px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-neutral-900 focus:border-neutral-900 bg-neutral-50"
+                  className="w-full rounded-2xl border border-graphite px-3 py-2 text-xs text-offwhite outline-none focus:ring-1 focus:ring-accent focus:border-accent bg-carbon"
                   value={size}
                   onChange={(e) => setSize(e.target.value)}
                 >
@@ -198,10 +198,10 @@ export default function CompanySettingsPage() {
             </div>
 
             <div>
-              <label className="block text-[11px] text-neutral-500 mb-1">Sitio web</label>
+              <label className="block text-[11px] text-muted mb-1">Sitio web</label>
               <input
                 type="url"
-                className="w-full rounded-2xl border border-neutral-200 px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-neutral-900 focus:border-neutral-900 bg-neutral-50"
+                className="w-full rounded-2xl border border-graphite px-3 py-2 text-xs text-offwhite outline-none focus:ring-1 focus:ring-accent focus:border-accent bg-carbon"
                 value={website}
                 onChange={(e) => setWebsite(e.target.value)}
                 placeholder="https://tuempresa.com"
@@ -209,21 +209,21 @@ export default function CompanySettingsPage() {
             </div>
 
             <div>
-              <label className="block text-[11px] text-neutral-500 mb-1">Google Forms URL (opcional)</label>
+              <label className="block text-[11px] text-muted mb-1">Google Forms URL (opcional)</label>
               <input
                 type="url"
-                className="w-full rounded-2xl border border-neutral-200 px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-neutral-900 focus:border-neutral-900 bg-neutral-50"
+                className="w-full rounded-2xl border border-graphite px-3 py-2 text-xs text-offwhite outline-none focus:ring-1 focus:ring-accent focus:border-accent bg-carbon"
                 value={googleFormUrl}
                 onChange={(e) => setGoogleFormUrl(e.target.value)}
                 placeholder="https://docs.google.com/forms/..."
               />
-              <p className="text-[10px] text-neutral-400 mt-1">Si añades esto, se usará por defecto en tus nuevas ofertas.</p>
+              <p className="text-[10px] text-muted mt-1">Si añades esto, se usará por defecto en tus nuevas ofertas.</p>
             </div>
 
             <div>
-              <label className="block text-[11px] text-neutral-500 mb-1">Ubicación</label>
+              <label className="block text-[11px] text-muted mb-1">Ubicación</label>
               <input
-                className="w-full rounded-2xl border border-neutral-200 px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-neutral-900 focus:border-neutral-900 bg-neutral-50"
+                className="w-full rounded-2xl border border-graphite px-3 py-2 text-xs text-offwhite outline-none focus:ring-1 focus:ring-accent focus:border-accent bg-carbon"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 placeholder="Ciudad, País"
@@ -231,9 +231,9 @@ export default function CompanySettingsPage() {
             </div>
 
             <div>
-              <label className="block text-[11px] text-neutral-500 mb-1">Descripción</label>
+              <label className="block text-[11px] text-muted mb-1">Descripción</label>
               <textarea
-                className="w-full rounded-2xl border border-neutral-200 px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-neutral-900 focus:border-neutral-900 bg-neutral-50 resize-none"
+                className="w-full rounded-2xl border border-graphite px-3 py-2 text-xs text-offwhite outline-none focus:ring-1 focus:ring-accent focus:border-accent bg-carbon resize-none"
                 rows={4}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -245,7 +245,7 @@ export default function CompanySettingsPage() {
           <button
             onClick={handleSaveProfile}
             disabled={saving}
-            className="mt-4 px-4 py-2 text-xs rounded-full bg-black text-white hover:bg-neutral-900 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="mt-4 px-4 py-2 text-xs rounded-full bg-accent text-offwhite hover:bg-accent/80 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {saving ? "Guardando..." : "Guardar cambios"}
           </button>
@@ -254,9 +254,9 @@ export default function CompanySettingsPage() {
         {/* PANEL LATERAL */}
         <div className="space-y-6">
           {/* LOGO */}
-          <div className="bg-white rounded-3xl shadow-sm border border-neutral-200 px-6 py-6">
-            <h2 className="text-sm font-semibold mb-3 text-neutral-900">Logo de la empresa</h2>
-            <p className="text-xs text-neutral-500 mb-4">
+          <div className="bg-panel rounded-3xl shadow-card border border-graphite px-6 py-6">
+            <h2 className="text-sm font-semibold mb-3 text-offwhite">Logo de la empresa</h2>
+            <p className="text-xs text-muted mb-4">
               Tu logo aparecerá en las ofertas de trabajo y en tu perfil público.
             </p>
 
@@ -265,10 +265,10 @@ export default function CompanySettingsPage() {
                 <img
                   src={logoUrl}
                   alt={name}
-                  className="w-16 h-16 rounded-2xl object-cover border border-neutral-200"
+                  className="w-16 h-16 rounded-2xl object-cover border border-graphite"
                 />
               ) : (
-                <div className="w-16 h-16 rounded-2xl bg-neutral-100 flex items-center justify-center text-neutral-400">
+                <div className="w-16 h-16 rounded-2xl bg-graphite flex items-center justify-center text-muted">
                   <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
@@ -278,7 +278,7 @@ export default function CompanySettingsPage() {
                 <button
                   onClick={triggerFileUpload}
                   disabled={uploading}
-                  className="px-3 py-1.5 text-xs rounded-full border border-neutral-200 text-neutral-700 hover:bg-neutral-50 transition disabled:opacity-50"
+                  className="px-3 py-1.5 text-xs rounded-full border border-graphite text-offwhite hover:bg-graphite transition disabled:opacity-50"
                 >
                   {uploading ? "Subiendo..." : "Subir logo"}
                 </button>
@@ -289,36 +289,36 @@ export default function CompanySettingsPage() {
                   accept="image/*"
                   onChange={handleFileChange}
                 />
-                <p className="text-[10px] text-neutral-400 mt-1">PNG, JPG. Máx 2MB</p>
+                <p className="text-[10px] text-muted mt-1">PNG, JPG. Máx 2MB</p>
               </div>
             </div>
           </div>
 
           {/* INFORMACIÓN DE CONTACTO */}
-          <div className="bg-white rounded-3xl shadow-sm border border-neutral-200 px-6 py-6">
-            <h2 className="text-sm font-semibold mb-3 text-neutral-900">Información de contacto</h2>
-            <p className="text-xs text-neutral-500 mb-4">
+          <div className="bg-panel rounded-3xl shadow-card border border-graphite px-6 py-6">
+            <h2 className="text-sm font-semibold mb-3 text-offwhite">Información de contacto</h2>
+            <p className="text-xs text-muted mb-4">
               Esta información se usa para comunicarnos contigo.
             </p>
 
             <div className="space-y-2">
-              <div className="flex items-center gap-2 text-xs text-neutral-600">
-                <span>✉️</span>
+              <div className="flex items-center gap-2 text-xs text-offwhite">
+                <span>✉</span>
                 <span>{profile?.email || "Sin email"}</span>
               </div>
-              <p className="text-[10px] text-neutral-400">
+              <p className="text-[10px] text-muted">
                 Para cambiar el email de contacto, contacta con soporte.
               </p>
             </div>
           </div>
 
           {/* ZONA PELIGROSA */}
-          <div className="bg-white rounded-3xl shadow-sm border border-neutral-200 px-6 py-6">
-            <h2 className="text-sm font-semibold mb-2 text-neutral-900">Zona de peligro</h2>
-            <p className="text-xs text-neutral-500 mb-3">
+          <div className="bg-panel rounded-3xl shadow-card border border-graphite px-6 py-6">
+            <h2 className="text-sm font-semibold mb-2 text-offwhite">Zona de peligro</h2>
+            <p className="text-xs text-muted mb-3">
               Acciones irreversibles sobre tu cuenta de empresa.
             </p>
-            <button className="px-4 py-2 text-xs rounded-full border border-red-200 text-red-600 hover:bg-red-50 transition">
+            <button className="px-4 py-2 text-xs rounded-full border border-red-700/30 text-red-400 hover:bg-red-900/30 transition">
               Eliminar cuenta de empresa
             </button>
           </div>

@@ -33,7 +33,6 @@ export default function CompanyDashboardPage() {
     const fetchRecentApps = async () => {
       try {
         const data = await apiClient.get<RecentApplication[]>("/company/applications", true);
-        // Tomar solo las 5 más recientes
         setRecentApps(data.slice(0, 5));
       } catch (err) {
         console.error("Error cargando aplicaciones:", err);
@@ -46,16 +45,16 @@ export default function CompanyDashboardPage() {
 
   const statusPill = (status: string) => {
     const statusMap: Record<string, { label: string; color: string }> = {
-      APPLIED: { label: "Pendiente", color: "bg-neutral-100 text-neutral-700 border-neutral-200" },
-      INTERVIEW: { label: "Entrevista", color: "bg-amber-50 text-amber-700 border-amber-100" },
-      HIRED: { label: "Contratado", color: "bg-emerald-50 text-emerald-700 border-emerald-100" },
-      REJECTED: { label: "Descartado", color: "bg-red-50 text-red-600 border-red-100" },
+      APPLIED: { label: "Pendiente", color: "bg-accent/20 text-accent border-accent/30" },
+      INTERVIEW: { label: "Entrevista", color: "bg-amber-900/30 text-amber-400 border-amber-700/30" },
+      HIRED: { label: "Contratado", color: "bg-emerald-900/30 text-emerald-400 border-emerald-700/30" },
+      REJECTED: { label: "Descartado", color: "bg-red-900/30 text-red-400 border-red-700/30" },
     };
-    
-    const config = statusMap[status] || { label: status, color: "bg-neutral-100 text-neutral-700 border-neutral-200" };
-    
+
+    const config = statusMap[status] || { label: status, color: "bg-graphite text-muted border-graphite" };
+
     return (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium border ${config.color}`}>
+      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-lg text-[11px] font-medium border ${config.color}`}>
         {config.label}
       </span>
     );
@@ -74,7 +73,7 @@ export default function CompanyDashboardPage() {
       <>
         <Topbar title="Dashboard empresa" subtitle="Cargando datos..." />
         <div className="flex items-center justify-center min-h-[300px]">
-          <div className="w-8 h-8 border-4 border-neutral-200 border-t-neutral-800 rounded-full animate-spin"></div>
+          <div className="w-8 h-8 border-4 border-graphite border-t-accent rounded-full animate-spin"></div>
         </div>
       </>
     );
@@ -125,19 +124,19 @@ export default function CompanyDashboardPage() {
       {/* ACCIONES RÁPIDAS */}
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* APLICACIONES RECIENTES */}
-        <div className="bg-white rounded-3xl border border-neutral-200 px-6 py-5 shadow-sm">
+        <div className="bg-panel rounded-xl border border-graphite px-6 py-5 shadow-card">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <h2 className="text-sm font-semibold text-neutral-900">
+              <h2 className="text-sm font-display font-bold text-offwhite">
                 Aplicaciones recientes
               </h2>
-              <p className="text-xs text-neutral-500 mt-0.5">
+              <p className="text-xs text-muted mt-0.5">
                 Últimos candidatos que se han postulado
               </p>
             </div>
-            <Link 
+            <Link
               to="/company/applications"
-              className="text-[11px] text-neutral-500 hover:text-neutral-900 underline"
+              className="text-[11px] text-muted hover:text-offwhite underline"
             >
               Ver todas
             </Link>
@@ -145,28 +144,28 @@ export default function CompanyDashboardPage() {
 
           {recentApps.length === 0 ? (
             <div className="py-8 text-center">
-              <p className="text-sm text-neutral-500">
+              <p className="text-sm text-muted">
                 Aún no tienes aplicaciones.
               </p>
-              <p className="text-xs text-neutral-400 mt-1">
+              <p className="text-xs text-muted mt-1">
                 Publica ofertas para recibir candidatos.
               </p>
             </div>
           ) : (
-            <div className="divide-y divide-neutral-100">
+            <div className="divide-y divide-graphite">
               {recentApps.map((app) => (
                 <div
                   key={app.id}
                   className="py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
                 >
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-neutral-900">
+                    <p className="text-sm font-medium text-offwhite">
                       {app.repFullName}
                     </p>
-                    <p className="text-xs text-neutral-500">
+                    <p className="text-xs text-muted">
                       {app.jobRole} · {app.jobTitle}
                     </p>
-                    <p className="text-[11px] text-neutral-400 mt-0.5">
+                    <p className="text-[11px] text-muted mt-0.5">
                       {formatDate(app.createdAt)}
                     </p>
                   </div>
@@ -180,63 +179,63 @@ export default function CompanyDashboardPage() {
         </div>
 
         {/* ACCIONES RÁPIDAS */}
-        <div className="bg-white rounded-3xl border border-neutral-200 px-6 py-5 shadow-sm">
-          <h2 className="text-sm font-semibold text-neutral-900 mb-1.5">
+        <div className="bg-panel rounded-xl border border-graphite px-6 py-5 shadow-card">
+          <h2 className="text-sm font-display font-bold text-offwhite mb-1.5">
             Acciones rápidas
           </h2>
-          <p className="text-xs text-neutral-500 mb-4">
+          <p className="text-xs text-muted mb-4">
             Gestiona tu cuenta y ofertas desde aquí.
           </p>
 
           <div className="space-y-3">
             <Link
               to="/company/jobs"
-              className="block w-full px-4 py-3 rounded-2xl border border-neutral-200 hover:border-neutral-300 hover:bg-neutral-50 transition"
+              className="block w-full px-4 py-3 rounded-lg border border-graphite hover:border-accent/50 hover:bg-carbon transition"
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-neutral-100 flex items-center justify-center">
-                  <svg className="w-5 h-5 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-10 h-10 rounded-lg bg-carbon border border-graphite flex items-center justify-center">
+                  <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                   </svg>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-neutral-900">Crear nueva oferta</p>
-                  <p className="text-xs text-neutral-500">Publica una vacante para comerciales</p>
+                  <p className="text-sm font-medium text-offwhite">Crear nueva oferta</p>
+                  <p className="text-xs text-muted">Publica una vacante para comerciales</p>
                 </div>
               </div>
             </Link>
 
             <Link
               to="/company/applications"
-              className="block w-full px-4 py-3 rounded-2xl border border-neutral-200 hover:border-neutral-300 hover:bg-neutral-50 transition"
+              className="block w-full px-4 py-3 rounded-lg border border-graphite hover:border-accent/50 hover:bg-carbon transition"
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-neutral-100 flex items-center justify-center">
-                  <svg className="w-5 h-5 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-10 h-10 rounded-lg bg-carbon border border-graphite flex items-center justify-center">
+                  <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-neutral-900">Gestionar candidatos</p>
-                  <p className="text-xs text-neutral-500">Revisa y filtra aplicaciones</p>
+                  <p className="text-sm font-medium text-offwhite">Gestionar candidatos</p>
+                  <p className="text-xs text-muted">Revisa y filtra aplicaciones</p>
                 </div>
               </div>
             </Link>
 
             <Link
               to="/company/settings"
-              className="block w-full px-4 py-3 rounded-2xl border border-neutral-200 hover:border-neutral-300 hover:bg-neutral-50 transition"
+              className="block w-full px-4 py-3 rounded-lg border border-graphite hover:border-accent/50 hover:bg-carbon transition"
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-neutral-100 flex items-center justify-center">
-                  <svg className="w-5 h-5 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-10 h-10 rounded-lg bg-carbon border border-graphite flex items-center justify-center">
+                  <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-neutral-900">Configuración</p>
-                  <p className="text-xs text-neutral-500">Actualiza los datos de tu empresa</p>
+                  <p className="text-sm font-medium text-offwhite">Configuración</p>
+                  <p className="text-xs text-muted">Actualiza los datos de tu empresa</p>
                 </div>
               </div>
             </Link>
@@ -245,9 +244,9 @@ export default function CompanyDashboardPage() {
       </section>
 
       {/* INFO DEL MVP */}
-      <section className="bg-neutral-50 rounded-2xl border border-neutral-200 px-6 py-4">
-        <p className="text-xs text-neutral-500">
-          💡 <strong>Tip:</strong> Completa el perfil de tu empresa en Configuración para atraer mejores candidatos.
+      <section className="bg-accent-glow rounded-lg border border-accent/30 px-6 py-4">
+        <p className="text-xs text-offwhite/80">
+          <strong className="text-accent">Tip:</strong> Completa el perfil de tu empresa en Configuración para atraer mejores candidatos.
           Los comerciales pueden ver tu descripción, industria y métricas antes de aplicar.
         </p>
       </section>

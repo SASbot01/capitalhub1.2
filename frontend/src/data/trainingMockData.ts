@@ -46,38 +46,22 @@ export interface UserProgress {
     progressPercentage: number;
 }
 
-// MOCK DATA
+// MOCK DATA - Solo Comercial PRO y Marketing Digital
 export const mockRoutes: Route[] = [
     {
         id: 1,
         name: 'Comercial PRO',
-        description: 'Domina las profesiones digitales más demandadas en ventas. Aprende a generar valor real en el mercado comercial digital.',
+        description: 'Domina las profesiones digitales más demandadas en ventas. Aprende a generar valor real en el mercado comercial digital: Setter, Closer, SDR y Cold Caller.',
         displayOrder: 1,
         imageUrl: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&q=80',
         active: true
     },
     {
-        id: 2,
-        name: 'Tech Specialist',
-        description: 'Automatiza procesos y optimiza sistemas digitales. Conviértete en el operador técnico que toda empresa necesita.',
-        displayOrder: 2,
-        imageUrl: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&q=80',
-        active: true
-    },
-    {
         id: 3,
-        name: 'Marketing Digital Specialist',
-        description: 'Campañas, embudos y estrategias de crecimiento. Aprende a escalar negocios con marketing digital.',
-        displayOrder: 3,
+        name: 'Marketing Digital',
+        description: 'Campañas, embudos y estrategias de crecimiento. Aprende a escalar negocios con Meta Ads, Google Ads y lanzamientos digitales.',
+        displayOrder: 2,
         imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80',
-        active: true
-    },
-    {
-        id: 4,
-        name: 'Especialista en IA Aplicada',
-        description: 'Inteligencia artificial para negocios digitales. Aprende a usar IA para multiplicar tu productividad.',
-        displayOrder: 4,
-        imageUrl: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&q=80',
         active: true
     }
 ];
@@ -120,25 +104,6 @@ export const mockFormations: Formation[] = [
         displayOrder: 4,
         estimatedHours: 45
     },
-    // Tech Specialist
-    {
-        id: 5,
-        routeId: 2,
-        name: 'Automatización con CRMs',
-        description: 'Domina HubSpot, GoHighLevel y sistemas de automatización. Crea flujos que ahorran horas de trabajo.',
-        level: 'Intermedio',
-        displayOrder: 1,
-        estimatedHours: 55
-    },
-    {
-        id: 6,
-        routeId: 2,
-        name: 'Dashboards y Reporting',
-        description: 'Visualización de datos y KPIs. Aprende a crear dashboards que toman decisiones.',
-        level: 'Básico',
-        displayOrder: 2,
-        estimatedHours: 35
-    },
     // Marketing Digital
     {
         id: 7,
@@ -157,25 +122,6 @@ export const mockFormations: Formation[] = [
         level: 'Avanzado',
         displayOrder: 2,
         estimatedHours: 65
-    },
-    // IA Specialist
-    {
-        id: 9,
-        routeId: 4,
-        name: 'Prompt Engineering',
-        description: 'Domina ChatGPT y herramientas de IA. Aprende a crear prompts que generan resultados profesionales.',
-        level: 'Básico',
-        displayOrder: 1,
-        estimatedHours: 30
-    },
-    {
-        id: 10,
-        routeId: 4,
-        name: 'Automatización con IA',
-        description: 'Flujos automatizados con IA. Integra IA en procesos de negocio reales.',
-        level: 'Intermedio',
-        displayOrder: 2,
-        estimatedHours: 45
     }
 ];
 

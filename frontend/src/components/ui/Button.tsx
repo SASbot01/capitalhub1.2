@@ -5,28 +5,27 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   isLoading?: boolean;
 }
 
-// Usamos 'export function' (exportación nombrada) para coincidir con el import { Button } en tus páginas
-export function Button({ 
-  children, 
-  variant = 'primary', 
+export function Button({
+  children,
+  variant = 'primary',
   isLoading = false,
-  className = '', 
+  className = '',
   disabled,
-  ...props 
+  ...props
 }: ButtonProps) {
-  
-  const baseStyles = "px-4 py-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center";
-  
+
+  const baseStyles = "px-4 py-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-carbon disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center";
+
   const variants = {
-    primary: "bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500",
-    secondary: "bg-gray-100 text-gray-900 hover:bg-gray-200 focus:ring-gray-500",
-    ghost: "bg-transparent text-gray-600 hover:bg-gray-100 hover:text-gray-900",
-    outline: "border border-gray-300 bg-transparent text-gray-700 hover:bg-gray-50",
+    primary: "bg-accent text-offwhite hover:bg-accent/80 focus:ring-accent",
+    secondary: "bg-graphite text-offwhite hover:bg-graphite/80 focus:ring-graphite",
+    ghost: "bg-transparent text-muted hover:bg-graphite hover:text-offwhite",
+    outline: "border border-graphite bg-transparent text-offwhite hover:bg-graphite",
     danger: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500",
   };
 
   return (
-    <button 
+    <button
       className={`${baseStyles} ${variants[variant]} ${className}`}
       disabled={disabled || isLoading}
       {...props}

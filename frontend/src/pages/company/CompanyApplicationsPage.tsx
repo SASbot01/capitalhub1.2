@@ -32,12 +32,12 @@ const statusLabels: Record<string, string> = {
 };
 
 const statusColors: Record<string, string> = {
-  APPLIED: "bg-neutral-100 text-neutral-700 border-neutral-200",
-  INTERVIEW: "bg-amber-50 text-amber-700 border-amber-100",
-  HIRED: "bg-emerald-50 text-emerald-700 border-emerald-100",
-  REJECTED: "bg-red-50 text-red-600 border-red-100",
-  OFFER_SENT: "bg-purple-50 text-purple-700 border-purple-100",
-  WITHDRAWN: "bg-neutral-50 text-neutral-500 border-neutral-200",
+  APPLIED: "bg-graphite text-muted border-graphite",
+  INTERVIEW: "bg-amber-900/30 text-amber-400 border-amber-700/30",
+  HIRED: "bg-emerald-900/30 text-emerald-400 border-emerald-700/30",
+  REJECTED: "bg-red-900/30 text-red-400 border-red-700/30",
+  OFFER_SENT: "bg-purple-900/30 text-purple-400 border-purple-700/30",
+  WITHDRAWN: "bg-graphite text-muted border-graphite",
 };
 
 export default function CompanyApplicationsPage() {
@@ -76,7 +76,7 @@ export default function CompanyApplicationsPage() {
       <div className="space-y-6 mb-10">
         <Topbar title="Aplicaciones" subtitle="Cargando candidatos..." />
         <div className="flex items-center justify-center min-h-[300px]">
-          <div className="w-8 h-8 border-4 border-neutral-200 border-t-neutral-800 rounded-full animate-spin"></div>
+          <div className="w-8 h-8 border-4 border-graphite border-t-accent rounded-full animate-spin"></div>
         </div>
       </div>
     );
@@ -86,7 +86,7 @@ export default function CompanyApplicationsPage() {
     return (
       <div className="space-y-6 mb-10">
         <Topbar title="Aplicaciones" subtitle="Error de conexión" />
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl text-sm">
+        <div className="bg-red-900/30 border border-red-700/30 text-red-400 px-4 py-3 rounded-2xl text-sm">
           Error al cargar las aplicaciones.
           <button onClick={refetch} className="underline ml-2">Reintentar</button>
         </div>
@@ -105,7 +105,7 @@ export default function CompanyApplicationsPage() {
 
       {/* FILTROS */}
       <section className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between mt-2">
-        <div className="inline-flex rounded-full bg-white border border-neutral-200 p-1 shadow-sm overflow-x-auto">
+        <div className="inline-flex rounded-full bg-panel border border-graphite p-1 shadow-card overflow-x-auto">
           {[
             { id: "ALL", label: "Todas" },
             { id: "APPLIED", label: "Pendientes" },
@@ -119,8 +119,8 @@ export default function CompanyApplicationsPage() {
               onClick={() => setStatusFilter(status.id as StatusFilter)}
               className={`px-4 py-1.5 text-xs rounded-full transition whitespace-nowrap ${
                 statusFilter === status.id
-                  ? "bg-black text-white"
-                  : "text-neutral-700 hover:bg-neutral-100"
+                  ? "bg-accent text-offwhite"
+                  : "text-muted hover:bg-graphite hover:text-offwhite"
               }`}
             >
               {status.label}
@@ -128,17 +128,17 @@ export default function CompanyApplicationsPage() {
           ))}
         </div>
 
-        <p className="text-[11px] text-neutral-500">
+        <p className="text-[11px] text-muted">
           {filtered.length} de {allApplications.length} aplicaciones
         </p>
       </section>
 
       {/* LISTA DE APLICACIONES */}
-      <section className="bg-white rounded-3xl border border-neutral-200 px-6 py-5 shadow-sm">
+      <section className="bg-panel rounded-3xl border border-graphite px-6 py-5 shadow-card">
         <div className="flex items-center justify-between mb-3">
           <div>
-            <h2 className="text-sm font-semibold text-neutral-900">Candidatos</h2>
-            <p className="text-xs text-neutral-500 mt-0.5">
+            <h2 className="text-sm font-semibold text-offwhite">Candidatos</h2>
+            <p className="text-xs text-muted mt-0.5">
               Revisa perfiles y gestiona el proceso de selección.
             </p>
           </div>
@@ -146,22 +146,22 @@ export default function CompanyApplicationsPage() {
 
         {filtered.length === 0 ? (
           <div className="py-12 text-center">
-            <svg className="w-12 h-12 mx-auto text-neutral-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-12 h-12 mx-auto text-muted mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
-            <p className="text-sm text-neutral-600 mb-2">
-              {statusFilter === "ALL" 
-                ? "Aún no tienes aplicaciones" 
+            <p className="text-sm text-offwhite mb-2">
+              {statusFilter === "ALL"
+                ? "Aún no tienes aplicaciones"
                 : `No hay aplicaciones con estado "${statusLabels[statusFilter] || statusFilter}"`}
             </p>
-            <p className="text-xs text-neutral-500">
-              {statusFilter === "ALL" 
+            <p className="text-xs text-muted">
+              {statusFilter === "ALL"
                 ? "Publica ofertas para recibir candidatos."
                 : "Intenta con otro filtro."}
             </p>
           </div>
         ) : (
-          <div className="divide-y divide-neutral-100">
+          <div className="divide-y divide-graphite">
             {filtered.map((app) => (
               <article
                 key={app.id}
@@ -169,15 +169,15 @@ export default function CompanyApplicationsPage() {
               >
                 {/* Info del candidato */}
                 <div className="flex-1">
-                  <p className="text-sm font-semibold text-neutral-900">{app.repFullName}</p>
-                  <p className="text-xs text-neutral-500">
+                  <p className="text-sm font-semibold text-offwhite">{app.repFullName}</p>
+                  <p className="text-xs text-muted">
                     {app.jobRole} · {app.jobTitle}
                   </p>
-                  <p className="text-[11px] text-neutral-400 mt-0.5">
+                  <p className="text-[11px] text-muted mt-0.5">
                     Aplicó el {formatDate(app.createdAt)}
                   </p>
                   {app.repMessage && (
-                    <p className="text-xs text-neutral-500 mt-1 italic">"{app.repMessage}"</p>
+                    <p className="text-xs text-muted mt-1 italic">"{app.repMessage}"</p>
                   )}
                 </div>
 
@@ -195,42 +195,42 @@ export default function CompanyApplicationsPage() {
                       <button
                         onClick={() => handleChangeStatus(app.id, "INTERVIEW")}
                         disabled={updatingId === app.id}
-                        className="px-3 py-1.5 rounded-full bg-amber-50 text-amber-700 text-[11px] font-medium hover:bg-amber-100 transition border border-amber-100 disabled:opacity-50"
+                        className="px-3 py-1.5 rounded-full bg-amber-900/30 text-amber-400 text-[11px] font-medium hover:bg-amber-900/50 transition border border-amber-700/30 disabled:opacity-50"
                       >
-                        📅 Marcar entrevista
+                        Marcar entrevista
                       </button>
                       <button
                         onClick={() => handleChangeStatus(app.id, "REJECTED")}
                         disabled={updatingId === app.id}
-                        className="px-3 py-1.5 rounded-full bg-neutral-50 text-neutral-600 text-[11px] font-medium hover:bg-neutral-100 transition border border-neutral-200 disabled:opacity-50"
+                        className="px-3 py-1.5 rounded-full bg-graphite text-muted text-[11px] font-medium hover:bg-graphite/80 transition border border-graphite disabled:opacity-50"
                       >
-                        ✕ Descartar
+                        Descartar
                       </button>
                     </>
                   )}
-                  
+
                   {app.status === "INTERVIEW" && (
                     <>
                       <button
                         onClick={() => handleChangeStatus(app.id, "HIRED")}
                         disabled={updatingId === app.id}
-                        className="px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-medium hover:bg-emerald-100 transition border border-emerald-100 disabled:opacity-50"
+                        className="px-3 py-1.5 rounded-full bg-emerald-900/30 text-emerald-400 text-[11px] font-medium hover:bg-emerald-900/50 transition border border-emerald-700/30 disabled:opacity-50"
                       >
-                        ✓ Contratar
+                        Contratar
                       </button>
                       <button
                         onClick={() => handleChangeStatus(app.id, "REJECTED")}
                         disabled={updatingId === app.id}
-                        className="px-3 py-1.5 rounded-full bg-neutral-50 text-neutral-600 text-[11px] font-medium hover:bg-neutral-100 transition border border-neutral-200 disabled:opacity-50"
+                        className="px-3 py-1.5 rounded-full bg-graphite text-muted text-[11px] font-medium hover:bg-graphite/80 transition border border-graphite disabled:opacity-50"
                       >
-                        ✕ Descartar
+                        Descartar
                       </button>
                     </>
                   )}
 
                   {app.status === "HIRED" && (
-                    <span className="px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-medium border border-emerald-100">
-                      🎉 Contratado
+                    <span className="px-3 py-1.5 rounded-full bg-emerald-900/30 text-emerald-400 text-[11px] font-medium border border-emerald-700/30">
+                      Contratado
                     </span>
                   )}
 
@@ -238,9 +238,9 @@ export default function CompanyApplicationsPage() {
                     <button
                       onClick={() => handleChangeStatus(app.id, "APPLIED")}
                       disabled={updatingId === app.id}
-                      className="px-3 py-1.5 rounded-full bg-neutral-50 text-neutral-600 text-[11px] font-medium hover:bg-neutral-100 transition border border-neutral-200 disabled:opacity-50"
+                      className="px-3 py-1.5 rounded-full bg-graphite text-muted text-[11px] font-medium hover:bg-graphite/80 transition border border-graphite disabled:opacity-50"
                     >
-                      ↩ Reconsiderar
+                      Reconsiderar
                     </button>
                   )}
                 </div>

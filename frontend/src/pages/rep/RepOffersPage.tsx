@@ -4,30 +4,22 @@ import { useFetch } from '../../hooks/useFetch';
 import { Button } from "../../components/ui/Button";
 import { applyToJob } from '../../api/applications';
 
-// ---------------------------------------------------
-// TIPOS (Ajustados para coincidir con lo que envía Java)
-// ---------------------------------------------------
 type RoleFilter = "all" | "closer" | "setter" | "cold_caller";
 
 interface JobOffer {
     id: number;
     title: string;
     companyName: string;
-    // Java envía "SETTER", "CLOSER" (Mayúsculas). Permitimos string para evitar errores.
     role: string;
     model: string;
     salaryHint: string;
     type: string;
     description: string;
-    // Java envía "CALENDLY" (Mayúsculas) o null.
     callTool: string;
     callLink: string;
     active: boolean;
 }
 
-// ---------------------------------------------------
-// TARJETA DE OFERTA
-// ---------------------------------------------------
 const JobOfferCard: React.FC<{ offer: JobOffer }> = ({ offer }) => {
     const [loading, setLoading] = useState(false);
     const [applied, setApplied] = useState(false);
@@ -45,12 +37,9 @@ const JobOfferCard: React.FC<{ offer: JobOffer }> = ({ offer }) => {
         try {
             await applyToJob(offer.id);
             setApplied(true);
-            // Abrir link tras aplicar exitosamente
             window.open(offer.callLink, "_blank", "noopener,noreferrer");
         } catch (err: any) {
             console.error(err);
-            // Manejo seguro del mensaje de error
-            // Manejo seguro del mensaje de error
             const msg = err.response?.data?.message || err.message || "Error desconocido";
 
             if (msg.includes("Ya has aplicado") || msg.includes("previously")) {
@@ -72,7 +61,7 @@ const JobOfferCard: React.FC<{ offer: JobOffer }> = ({ offer }) => {
         if (r.includes("setter")) return "Setter";
         if (r.includes("cold")) return "Cold Caller / SDR";
         if (r.includes("both")) return "Setter + Closer";
-        return role; // Fallback
+        return role;
     };
 
     const callToolLabel = (tool: string) => {
@@ -86,70 +75,64 @@ const JobOfferCard: React.FC<{ offer: JobOffer }> = ({ offer }) => {
     }
 
     const buttonText = applied
-        ? '✅ Formulario Abierto'
+        ? 'Formulario Abierto'
         : 'Rellenar formulario';
 
     return (
-        <article className="bg-white rounded-3xl border border-neutral-200 px-6 py-5 shadow-sm flex flex-col gap-3">
+        <article className="bg-panel rounded-xl border border-graphite px-6 py-5 shadow-card flex flex-col gap-3">
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                 <div>
-                    <h2 className="text-sm font-semibold">{offer.title}</h2>
-                    <p className="text-xs text-neutral-500 mt-0.5">
+                    <h2 className="text-sm font-display font-bold text-offwhite">{offer.title}</h2>
+                    <p className="text-xs text-muted mt-0.5">
                         {offer.companyName} · {offer.type}
                     </p>
-                    <p className="text-[11px] text-neutral-500 mt-1">
+                    <p className="text-[11px] text-muted mt-1">
                         Rol: {roleLabel(offer.role)}
                     </p>
                 </div>
 
                 <div className="text-right">
-                    <p className="text-[11px] text-neutral-400 mb-1">Modelo de pago</p>
-                    <p className="text-xs font-medium text-neutral-800">{offer.model}</p>
-                    <p className="text-[11px] text-neutral-500 mt-0.5">{offer.salaryHint}</p>
+                    <p className="text-[11px] text-muted mb-1">Modelo de pago</p>
+                    <p className="text-xs font-medium text-offwhite">{offer.model}</p>
+                    <p className="text-[11px] text-muted mt-0.5">{offer.salaryHint}</p>
                 </div>
             </div>
 
-            <p className="text-xs text-neutral-700 leading-relaxed">
+            <p className="text-xs text-offwhite/80 leading-relaxed">
                 {offer.description}
             </p>
 
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-2 border-t border-neutral-100">
-                <p className="text-[11px] text-neutral-500">
-                    Entrevista vía <span className="font-medium">{callToolLabel(offer.callTool)}</span>.
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-2 border-t border-graphite">
+                <p className="text-[11px] text-muted">
+                    Entrevista vía <span className="font-medium text-offwhite">{callToolLabel(offer.callTool)}</span>.
                 </p>
 
                 <div className="flex gap-2">
                     <Button
                         onClick={handleApply}
-                        disabled={loading} // Quitamos 'applied' del disabled para permitir re-clicks si quieren ver el link
-                        className={`px-3 py-1.5 text-xs rounded-full transition ${applied
-                            ? "bg-green-50 text-green-700 border border-green-200 hover:bg-green-100"
-                            : "bg-black text-white hover:bg-neutral-900"
+                        disabled={loading}
+                        className={`px-3 py-1.5 text-xs rounded-lg transition ${applied
+                            ? "bg-emerald-900/30 text-emerald-400 border border-emerald-700/30 hover:bg-emerald-900/50"
+                            : ""
                             }`}
                     >
                         {loading ? "Procesando..." : buttonText}
                     </Button>
                 </div>
             </div>
-            {error && <p className="text-[10px] text-red-500 mt-1 sm:text-right">{error}</p>}
+            {error && <p className="text-[10px] text-red-400 mt-1 sm:text-right">{error}</p>}
         </article>
     );
 };
 
-// ---------------------------------------------------
-// PÁGINA PRINCIPAL
-// ---------------------------------------------------
 export default function RepOffersPage() {
     const [roleFilter, setRoleFilter] = useState<RoleFilter>("all");
-
-    // useFetch tipado con JobOffer[]
     const { data: offers, isLoading, error, refetch } = useFetch<JobOffer[]>('/api/rep/jobs', true);
 
     const filteredOffers = useMemo(() => {
         if (!offers) return [];
 
         return offers.filter((offer) => {
-            // Protección contra nulos
             const lowerCaseRole = offer.role ? offer.role.toLowerCase() : "";
 
             if (roleFilter === "all") return true;
@@ -164,7 +147,9 @@ export default function RepOffersPage() {
         return (
             <>
                 <Topbar title="Ofertas disponibles" subtitle="Cargando oportunidades..." />
-                <div className="text-center py-10 text-neutral-500">Cargando ofertas disponibles...</div>
+                <div className="flex items-center justify-center min-h-[300px]">
+                    <div className="w-8 h-8 border-4 border-graphite border-t-accent rounded-full animate-spin"></div>
+                </div>
             </>
         );
     }
@@ -174,7 +159,7 @@ export default function RepOffersPage() {
             <>
                 <Topbar title="Ofertas disponibles" subtitle="Error de conexión" />
                 <div className="text-center py-10">
-                    <p className="text-red-600 mb-4">No se pudieron cargar las ofertas.</p>
+                    <p className="text-red-400 mb-4">No se pudieron cargar las ofertas.</p>
                     <Button onClick={refetch}>Reintentar</Button>
                 </div>
             </>
@@ -190,7 +175,7 @@ export default function RepOffersPage() {
 
             <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 {/* FILTROS */}
-                <div className="inline-flex rounded-full bg-white border border-neutral-200 p-1 shadow-sm overflow-x-auto">
+                <div className="inline-flex rounded-lg bg-panel border border-graphite p-1 overflow-x-auto">
                     {[
                         { id: "all", label: "Todos" },
                         { id: "closer", label: "Closers" },
@@ -200,7 +185,7 @@ export default function RepOffersPage() {
                         <button
                             key={f.id}
                             onClick={() => setRoleFilter(f.id as RoleFilter)}
-                            className={`px-4 py-1.5 text-xs rounded-full transition whitespace-nowrap ${roleFilter === f.id ? "bg-black text-white" : "text-neutral-700 hover:bg-neutral-100"
+                            className={`px-4 py-1.5 text-xs rounded-lg transition whitespace-nowrap ${roleFilter === f.id ? "bg-accent text-offwhite" : "text-muted hover:bg-graphite hover:text-offwhite"
                                 }`}
                         >
                             {f.label}
@@ -216,8 +201,8 @@ export default function RepOffersPage() {
                 ))}
 
                 {filteredOffers.length === 0 && (
-                    <div className="bg-white rounded-3xl border border-dashed border-neutral-200 px-6 py-10 text-center">
-                        <p className="text-sm font-medium text-neutral-700">No hay ofertas disponibles</p>
+                    <div className="bg-panel rounded-xl border border-dashed border-graphite px-6 py-10 text-center">
+                        <p className="text-sm font-medium text-muted">No hay ofertas disponibles</p>
                     </div>
                 )}
             </div>

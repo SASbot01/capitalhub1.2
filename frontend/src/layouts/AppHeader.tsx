@@ -10,7 +10,7 @@ interface MenuItem {
 
 // Menu definitions
 const repMenu: MenuItem[] = [
-    { label: "Inicio", to: "/rep/home" },
+    { label: "Inicio", to: "/home" },
     { label: "Dashboard", to: "/rep/dashboard" },
     { label: "Perfil", to: "/rep/profile" },
     { label: "Ofertas", to: "/rep/offers" },
@@ -20,7 +20,7 @@ const repMenu: MenuItem[] = [
 ];
 
 const companyMenu: MenuItem[] = [
-    { label: "Inicio", to: "/company/home" },
+    { label: "Inicio", to: "/home" },
     { label: "Dashboard", to: "/company/dashboard" },
     { label: "Ofertas", to: "/company/jobs" },
     { label: "Aplicaciones", to: "/company/applications" },
@@ -52,7 +52,6 @@ export default function AppHeader() {
     };
 
     useEffect(() => {
-        // Only fetch for company or relevant roles if needed, or keeping existing logic
         const fetchNotifications = async () => {
             try {
                 const token = localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken");
@@ -81,16 +80,20 @@ export default function AppHeader() {
     }, [location.pathname]);
 
     return (
-        <header className="bg-white border-b border-neutral-200 sticky top-0 z-50">
+        <header className="bg-panel border-b border-graphite sticky top-0 z-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between h-16">
                     {/* Logo & Desktop Nav */}
                     <div className="flex items-center gap-8">
-                        <div className="flex-shrink-0 flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-2xl bg-black text-white flex items-center justify-center text-xs font-semibold">
-                                C
+                        <div className="flex-shrink-0 flex items-center gap-3">
+                            {/* CH Monogram */}
+                            <div className="w-8 h-8 rounded-lg bg-offwhite text-carbon flex items-center justify-center text-sm font-display font-extrabold tracking-tight">
+                                CH
                             </div>
-                            <span className="font-semibold text-sm tracking-tight hidden sm:block">CapitalHub</span>
+                            {/* Logo Wordmark */}
+                            <span className="font-display font-extrabold text-sm tracking-logo text-offwhite uppercase hidden sm:block">
+                                Capital Hub
+                            </span>
                         </div>
 
                         {/* Desktop Navigation */}
@@ -101,19 +104,16 @@ export default function AppHeader() {
                                     to={item.to}
                                     className={({ isActive }) =>
                                         [
-                                            "px-3 py-2 text-[13px] font-medium rounded-full transition flex items-center gap-2",
+                                            "px-3 py-2 text-[13px] font-medium rounded-lg transition flex items-center gap-2",
                                             isActive
-                                                ? "bg-black text-white"
-                                                : "text-neutral-600 hover:bg-neutral-100",
+                                                ? "bg-accent text-offwhite"
+                                                : "text-muted hover:bg-graphite hover:text-offwhite",
                                         ].join(" ")
                                     }
                                 >
                                     {item.label}
                                     {item.label === "Aplicaciones" && pendingCount > 0 && (
-                                        <span className={`inline-flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full text-[9px] font-bold ${
-                                            // Simple logic: always red badge
-                                            'bg-red-500 text-white'
-                                            }`}>
+                                        <span className="inline-flex items-center justify-center min-w-[16px] h-4 px-1 rounded text-[9px] font-bold bg-accent text-offwhite">
                                             {pendingCount}
                                         </span>
                                     )}
@@ -128,13 +128,13 @@ export default function AppHeader() {
                         {user && (
                             <div className="hidden sm:flex items-center gap-3">
                                 <div className="text-right">
-                                    <p className="text-sm font-medium leading-none">{userFullName}</p>
-                                    <p className="text-[11px] text-neutral-500 mt-1 leading-none">{user.role}</p>
+                                    <p className="text-sm font-medium leading-none text-offwhite">{userFullName}</p>
+                                    <p className="text-[11px] text-muted mt-1 leading-none">{user.role}</p>
                                 </div>
                                 <Avatar initials={userFullName.substring(0, 2).toUpperCase()} />
                                 <button
                                     onClick={handleLogout}
-                                    className="text-neutral-400 hover:text-red-600 transition p-1"
+                                    className="text-muted hover:text-red-400 transition p-1"
                                     title="Cerrar sesión"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -148,7 +148,7 @@ export default function AppHeader() {
                         <div className="flex items-center md:hidden">
                             <button
                                 type="button"
-                                className="inline-flex items-center justify-center p-2 rounded-md text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100 focus:outline-none"
+                                className="inline-flex items-center justify-center p-2 rounded-md text-muted hover:text-offwhite hover:bg-graphite focus:outline-none"
                                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                             >
                                 <span className="sr-only">Open main menu</span>
@@ -169,7 +169,7 @@ export default function AppHeader() {
 
             {/* Mobile Menu */}
             {isMobileMenuOpen && (
-                <div className="md:hidden border-t border-neutral-100 bg-white">
+                <div className="md:hidden border-t border-graphite bg-panel">
                     <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
                         {menu.map((item) => (
                             <NavLink
@@ -177,16 +177,16 @@ export default function AppHeader() {
                                 to={item.to}
                                 className={({ isActive }) =>
                                     [
-                                        "block px-3 py-2 rounded-md text-base font-medium flex justify-between items-center",
+                                        "block px-3 py-2 rounded-lg text-base font-medium flex justify-between items-center",
                                         isActive
-                                            ? "bg-black text-white"
-                                            : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900",
+                                            ? "bg-accent text-offwhite"
+                                            : "text-muted hover:bg-graphite hover:text-offwhite",
                                     ].join(" ")
                                 }
                             >
                                 <span>{item.label}</span>
                                 {item.label === "Aplicaciones" && pendingCount > 0 && (
-                                    <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                    <span className="bg-accent text-offwhite text-[10px] font-bold px-2 py-0.5 rounded">
                                         {pendingCount}
                                     </span>
                                 )}
@@ -195,7 +195,7 @@ export default function AppHeader() {
                         {/* Mobile Logout */}
                         <button
                             onClick={handleLogout}
-                            className="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-red-600 hover:bg-red-50"
+                            className="w-full text-left block px-3 py-2 rounded-lg text-base font-medium text-red-400 hover:bg-red-900/30"
                         >
                             Cerrar sesión
                         </button>
