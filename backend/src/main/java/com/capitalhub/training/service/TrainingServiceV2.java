@@ -1,5 +1,6 @@
 package com.capitalhub.training.service;
 
+import com.capitalhub.auth.entity.User;
 import com.capitalhub.training.entity.*;
 import com.capitalhub.training.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +45,21 @@ public class TrainingServiceV2 {
     // ========================================
 
     public List<Formation> getFormationsByRoute(Long routeId) {
+        return formationRepository.findByRouteIdAndActiveOrderByDisplayOrder(routeId, true);
+    }
+
+    /**
+     * Get formations filtered by user's subscription tier
+     * T0/null: only intro modules
+     * T1+: all formations
+     */
+    public List<Formation> getFormationsByRouteForUser(Long routeId, User user) {
+        if (user == null || !user.hasFullFormationAccess()) {
+            // User has no subscription or T0 - only return intro modules
+            return formationRepository.findByRouteIdAndActiveAndIsIntroModuleOrderByDisplayOrder(routeId, true, true);
+        }
+
+        // User has T1+ - return all formations
         return formationRepository.findByRouteIdAndActiveOrderByDisplayOrder(routeId, true);
     }
 

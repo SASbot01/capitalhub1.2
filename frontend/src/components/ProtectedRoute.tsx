@@ -1,19 +1,25 @@
-// frontend/src/components/ProtectedRoute.tsx
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useSubscription } from '../context/SubscriptionContext';
+import type { SubscriptionTier } from '../types/subscription';
 
 interface ProtectedRouteProps {
-  // Lista de roles permitidos para acceder a esta ruta (ej: ['REP'] o ['COMPANY'])
   allowedRoles: Array<'REP' | 'COMPANY' | 'ADMIN'>;
+  requiredTier?: SubscriptionTier;
+  requireMarketplace?: boolean;
 }
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles }) => {
-  const { isAuthenticated, role, isLoading } = useAuth();
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  allowedRoles,
+  requiredTier,
+  requireMarketplace = false
+}) => {
+  const { isAuthenticated, role, isLoading: authLoading } = useAuth();
+  const { canAccessTier, hasMarketplaceAccess, isLoading: subLoading } = useSubscription();
 
-  // Paso 1: Muestra un componente de carga mientras se verifica el estado inicial de la sesión
-  if (isLoading) {
-    // Puedes reemplazar esto con un spinner o un esqueleto de carga
+  // Show loading while checking auth status
+  if (authLoading || subLoading) {
     return (
       <div className="flex justify-center items-center h-screen text-lg">
         Cargando sesión...
@@ -21,17 +27,26 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles }) 
     );
   }
 
-  // Paso 2: Si no está autenticado, forzamos la redirección a la página de Login
+  // Redirect to login if not authenticated
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  // Paso 3: Si está autenticado, verificamos si su rol está en la lista de roles permitidos
+  // Check role authorization
   if (role && !allowedRoles.includes(role)) {
-    // Si tiene sesión pero el rol no es el correcto, lo redirigimos a la página de selección
     return <Navigate to="/home" replace />;
   }
 
-  // Paso 4: Si está autenticado y el rol es correcto, renderizamos las rutas anidadas
+  // Check tier requirement
+  if (requiredTier && !canAccessTier(requiredTier)) {
+    return <Navigate to="/upgrade" replace />;
+  }
+
+  // Check marketplace access requirement
+  if (requireMarketplace && !hasMarketplaceAccess) {
+    return <Navigate to="/upgrade" replace />;
+  }
+
+  // All checks passed, render nested routes
   return <Outlet />;
 };

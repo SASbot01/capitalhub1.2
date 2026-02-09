@@ -45,3 +45,15 @@ minio:
   secret-key: ${MINIO_SECRET_KEY:minioadmin}
   bucket: ${MINIO_BUCKET:capitalhub-media}
   public-url: ${MINIO_PUBLIC_URL:http://localhost:9000}
+
+stripe:
+  api-key: ${STRIPE_API_KEY:}
+  webhook-secret: ${STRIPE_WEBHOOK_SECRET:}
+
+hotmart:
+  hottok: ${HOTMART_HOTTOK:}
+  client-id: ${HOTMART_CLIENT_ID:}
+  client-secret: ${HOTMART_CLIENT_SECRET:}
+
+app:
+  frontend-url: ${FRONTEND_URL:http://localhost:5173}

@@ -91,9 +91,10 @@ export const router = createBrowserRouter([
         ],
     },
 
-    // 2.5. 🎓 TRAINING MODULE ROUTES (Public for demo)
+    // 2.5. 🎓 TRAINING MODULE ROUTES (Protected - requires authentication)
     {
         path: "/training",
+        element: <ProtectedRoute allowedRoles={['REP', 'ADMIN']} />,
         children: [
             {
                 path: "routes",
@@ -113,6 +114,28 @@ export const router = createBrowserRouter([
             },
             // Redirect /training to /training/routes
             { index: true, element: <Navigate to="/training/routes" replace /> },
+        ],
+    },
+
+    // 2.6. 💳 SUBSCRIPTION ROUTES
+    {
+        path: "/upgrade",
+        element: <ProtectedRoute allowedRoles={['REP', 'COMPANY', 'ADMIN']} />,
+        children: [
+            {
+                index: true,
+                lazy: () => import("./pages/subscription/UpgradePage").then(m => ({ Component: m.default })),
+            },
+        ],
+    },
+    {
+        path: "/subscription/success",
+        element: <ProtectedRoute allowedRoles={['REP', 'COMPANY', 'ADMIN']} />,
+        children: [
+            {
+                index: true,
+                lazy: () => import("./pages/subscription/SuccessPage").then(m => ({ Component: m.default })),
+            },
         ],
     },
 

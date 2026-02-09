@@ -17,4 +17,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     
     // Buscar usuario por token de reset (usado en Reset Password)
     Optional<User> findByResetToken(String resetToken);
+
+    // Buscar usuario por Stripe customer ID (usado en webhooks)
+    Optional<User> findByStripeCustomerId(String stripeCustomerId);
 }

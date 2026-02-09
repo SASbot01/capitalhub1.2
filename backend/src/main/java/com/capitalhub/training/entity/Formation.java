@@ -31,6 +31,12 @@ public class Formation {
     private Integer displayOrder;
     private Boolean active = true;
 
+    @Column(name = "min_tier")
+    private String minTier = "T1";
+
+    @Column(name = "is_intro_module")
+    private Boolean isIntroModule = false;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 }

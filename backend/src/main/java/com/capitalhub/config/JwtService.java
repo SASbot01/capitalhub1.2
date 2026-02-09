@@ -40,7 +40,16 @@ public class JwtService {
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         // Añadimos el rol al token para facilitar cosas
         extraClaims.put("role", userDetails.getAuthorities().iterator().next().getAuthority());
-        
+
+        // Añadimos información de suscripción si es un User
+        if (userDetails instanceof com.capitalhub.auth.entity.User) {
+            com.capitalhub.auth.entity.User user = (com.capitalhub.auth.entity.User) userDetails;
+            if (user.getSubscriptionTier() != null) {
+                extraClaims.put("tier", user.getSubscriptionTier().name());
+            }
+            extraClaims.put("tierActive", user.isSubscriptionActive());
+        }
+
         return buildToken(extraClaims, userDetails.getUsername(), jwtExpiration);
     }
 

@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { mockRoutes } from '../../data/trainingMockData';
-import { ArrowRight, Clock, TrendingUp, Home, Users, Award, Zap } from 'lucide-react';
+import { ArrowRight, Clock, TrendingUp, Home } from 'lucide-react';
 
 export default function RoutesPage() {
     const navigate = useNavigate();
@@ -32,103 +32,8 @@ export default function RoutesPage() {
                 </div>
             </div>
 
-            {/* Escalera de Valor */}
+            {/* Routes Section */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-
-                {/* Pricing Tiers */}
-                <div className="mb-12">
-                    <h2 className="text-2xl font-display font-bold text-offwhite text-center mb-8">
-                        La Escalera de Valor FPD
-                    </h2>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        {/* Nivel 0 - Gancho */}
-                        <div className="bg-panel border border-graphite rounded-xl p-5">
-                            <div className="flex items-center gap-2 mb-3">
-                                <div className="w-8 h-8 rounded-lg bg-graphite flex items-center justify-center text-muted text-sm font-bold">0</div>
-                                <span className="text-xs text-muted uppercase tracking-wider">Gancho</span>
-                            </div>
-                            <h3 className="text-lg font-display font-bold text-offwhite mb-1">Prueba 2 Semanas</h3>
-                            <p className="text-2xl font-display font-bold text-accent mb-2">8€</p>
-                            <p className="text-xs text-muted">Entrada de bajo riesgo. Evalúa si esto es para ti.</p>
-                        </div>
-
-                        {/* Nivel 1 - Frontend */}
-                        <div className="bg-panel border border-graphite rounded-xl p-5">
-                            <div className="flex items-center gap-2 mb-3">
-                                <div className="w-8 h-8 rounded-lg bg-graphite flex items-center justify-center text-muted text-sm font-bold">1</div>
-                                <span className="text-xs text-muted uppercase tracking-wider">Frontend</span>
-                            </div>
-                            <h3 className="text-lg font-display font-bold text-offwhite mb-1">Membresía Básica</h3>
-                            <p className="text-2xl font-display font-bold text-accent mb-2">44€<span className="text-sm text-muted">/mes</span></p>
-                            <p className="text-xs text-muted">Acceso a formaciones + bolsa de trabajo básica.</p>
-                        </div>
-
-                        {/* Nivel 2 - Core Offer */}
-                        <div className="bg-panel border-2 border-accent rounded-xl p-5 relative">
-                            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent text-offwhite text-xs font-bold px-3 py-1 rounded-full">
-                                RECOMENDADO
-                            </div>
-                            <div className="flex items-center gap-2 mb-3">
-                                <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center text-offwhite text-sm font-bold">2</div>
-                                <span className="text-xs text-accent uppercase tracking-wider">Core Offer</span>
-                            </div>
-                            <h3 className="text-lg font-display font-bold text-offwhite mb-1">High Ticket Intensivo</h3>
-                            <p className="text-2xl font-display font-bold text-accent mb-2">1.900€</p>
-                            <p className="text-xs text-muted">4 meses intensivos + tutor + certificación oficial.</p>
-                            <p className="text-[10px] text-muted mt-1">(1.500€ sin certificado)</p>
-                        </div>
-
-                        {/* Nivel 3 - Continuidad */}
-                        <div className="bg-panel border border-graphite rounded-xl p-5">
-                            <div className="flex items-center gap-2 mb-3">
-                                <div className="w-8 h-8 rounded-lg bg-graphite flex items-center justify-center text-muted text-sm font-bold">3</div>
-                                <span className="text-xs text-muted uppercase tracking-wider">Continuidad</span>
-                            </div>
-                            <h3 className="text-lg font-display font-bold text-offwhite mb-1">Membresía Pro</h3>
-                            <p className="text-2xl font-display font-bold text-accent mb-2">97€<span className="text-sm text-muted">/mes</span></p>
-                            <p className="text-xs text-muted">Mantén tu certificación activa y acceso al marketplace.</p>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Qué incluye el High Ticket */}
-                <div className="bg-panel border border-graphite rounded-xl p-6 mb-12">
-                    <h3 className="text-lg font-display font-bold text-offwhite mb-4 flex items-center gap-2">
-                        <Zap className="w-5 h-5 text-accent" />
-                        ¿Qué incluye el High Ticket Intensivo?
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="flex items-start gap-3">
-                            <div className="w-10 h-10 rounded-lg bg-accent/20 flex items-center justify-center flex-shrink-0">
-                                <Clock className="w-5 h-5 text-accent" />
-                            </div>
-                            <div>
-                                <p className="text-sm font-medium text-offwhite">4 Meses Intensivos</p>
-                                <p className="text-xs text-muted">Dentro de 1 año de acceso total</p>
-                            </div>
-                        </div>
-                        <div className="flex items-start gap-3">
-                            <div className="w-10 h-10 rounded-lg bg-accent/20 flex items-center justify-center flex-shrink-0">
-                                <Users className="w-5 h-5 text-accent" />
-                            </div>
-                            <div>
-                                <p className="text-sm font-medium text-offwhite">Grupos Reducidos</p>
-                                <p className="text-xs text-muted">Máximo 8 personas por grupo</p>
-                            </div>
-                        </div>
-                        <div className="flex items-start gap-3">
-                            <div className="w-10 h-10 rounded-lg bg-accent/20 flex items-center justify-center flex-shrink-0">
-                                <Award className="w-5 h-5 text-accent" />
-                            </div>
-                            <div>
-                                <p className="text-sm font-medium text-offwhite">2 Calls/Semana</p>
-                                <p className="text-xs text-muted">Acompañamiento con tutor dedicado</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 {/* Routes Grid */}
                 <h2 className="text-2xl font-display font-bold text-offwhite text-center mb-8">
                     Elige tu Ruta

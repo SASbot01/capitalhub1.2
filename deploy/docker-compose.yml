@@ -82,8 +82,15 @@ services:
       MAIL_USERNAME: info@capitalhub.es
       MAIL_PASSWORD: "infoA39b2@llinfo"
 
+      # 👇 STRIPE (Pagos)
+      STRIPE_API_KEY: "${STRIPE_API_KEY:-}"
+      STRIPE_WEBHOOK_SECRET: "${STRIPE_WEBHOOK_SECRET:-}"
+
+      # 👇 HOTMART (Opcional - pagos alternativos)
+      HOTMART_HOTTOK: "${HOTMART_HOTTOK:-}"
+
       # 👇 URLS PÚBLICAS
-      FRONTEND_URL: "http://localhost"
+      FRONTEND_URL: "${FRONTEND_URL:-http://localhost}"
 
     depends_on:
       mysql:
