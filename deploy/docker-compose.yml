@@ -1,4 +1,4 @@
-version: '3.8'
+name: capitalhub
 
 services:
   # =====================================================
@@ -13,7 +13,7 @@ services:
       MYSQL_DATABASE: capitalhub
       MYSQL_PASSWORD: admin
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
@@ -32,8 +32,8 @@ services:
     container_name: capitalhub-minio
     restart: unless-stopped
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - "9002:9000"
+      - "9003:9001"
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
@@ -59,7 +59,7 @@ services:
     container_name: capitalhub-backend
     restart: unless-stopped
     ports:
-      - "8081:8081"
+      - "8082:8081"
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/capitalhub?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: root
@@ -89,6 +89,9 @@ services:
       # 👇 HOTMART (Opcional - pagos alternativos)
       HOTMART_HOTTOK: "${HOTMART_HOTTOK:-}"
 
+      # 👇 ANTHROPIC (Chatbot IA)
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY:-}"
+
       # 👇 URLS PÚBLICAS
       FRONTEND_URL: "${FRONTEND_URL:-http://localhost}"
 
@@ -111,7 +114,7 @@ services:
     container_name: capitalhub-frontend
     restart: unless-stopped
     ports:
-      - "80:80"
+      - "8084:80"
     depends_on:
       - backend
     networks:
@@ -128,12 +131,19 @@ services:
     environment:
       # 👇 TU TOKEN REAL (Ya puesto)
       - TUNNEL_TOKEN=eyJhIjoiZTI4YjU5NjQ4ZGI0ZTc1NTEwZDljNWE3MDQwZjFjNmMiLCJ0IjoiZDRiYzlhODAtZjA3OC00MjAzLTkxYWItYjJjMDgyNGQzMTZlIiwicyI6Ik1HWXlOakEyTW1ZdE5UY3laaTAwWlRCaUxXRm1OalV0TURFNFpEQTRaR1EyTkdVMSJ9
+    depends_on:
+      - frontend
+      - backend
     networks:
       - capitalhub-network
 
 volumes:
   mysql_data:
+    name: deploy_mysql_data
+    external: true
   minio_data:
+    name: deploy_minio_data
+    external: true
 
 
 networks:

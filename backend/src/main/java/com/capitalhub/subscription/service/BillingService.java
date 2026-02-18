@@ -153,9 +153,9 @@ public class BillingService {
     private String getProductDescription(SubscriptionTier tier) {
         switch (tier) {
             case T0:
-                return "14 días de prueba - Acceso a módulos introductorios";
+                return "14 días de prueba - Formación completa durante 2 semanas";
             case T1:
-                return "Membresía Básica - Acceso completo a formaciones + bolsa de trabajo";
+                return "Membresía Completa - Formación completa + Bolsa de trabajo + Marketplace";
             case T2:
                 return "High Ticket Intensivo - 4 meses de bootcamp + tutor + certificación";
             case T3:

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Home, Check, Star, Zap, Users, Award, Clock } from 'lucide-react';
+import { Home, Check, Star } from 'lucide-react';
 import { useSubscription } from '../../context/SubscriptionContext';
 import { TIER_INFO, SubscriptionTier } from '../../types/subscription';
 import { Button } from '../../components/ui/Button';
@@ -23,7 +23,7 @@ export default function UpgradePage() {
         }
     };
 
-    const tiers: SubscriptionTier[] = ['T0', 'T1', 'T2', 'T3'];
+    const tiers: SubscriptionTier[] = ['T0', 'T1'];
 
     return (
         <div className="min-h-screen bg-carbon">
@@ -67,11 +67,11 @@ export default function UpgradePage() {
 
             {/* Plans Grid */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
                     {tiers.map((tierKey) => {
                         const tierInfo = TIER_INFO[tierKey];
                         const isCurrentTier = currentTier === tierKey && isSubscriptionActive;
-                        const isRecommended = tierKey === 'T2';
+                        const isRecommended = tierKey === 'T1';
                         const isUpgrading = upgrading === tierKey;
 
                         return (
@@ -85,7 +85,7 @@ export default function UpgradePage() {
                             >
                                 {/* Recommended badge */}
                                 {isRecommended && (
-                                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent text-offwhite text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
+                                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent text-carbon text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
                                         <Star className="w-3 h-3" />
                                         RECOMENDADO
                                     </div>
@@ -102,7 +102,7 @@ export default function UpgradePage() {
                                 <div className="flex items-center gap-2 mb-4">
                                     <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-sm font-bold ${
                                         isRecommended
-                                            ? 'bg-accent text-offwhite'
+                                            ? 'bg-accent text-carbon'
                                             : 'bg-graphite text-muted'
                                     }`}>
                                         {tierKey.replace('T', '')}
@@ -162,43 +162,6 @@ export default function UpgradePage() {
                             </div>
                         );
                     })}
-                </div>
-
-                {/* High Ticket Features */}
-                <div className="mt-12 bg-panel border border-graphite rounded-xl p-8">
-                    <h3 className="text-xl font-display font-bold text-offwhite mb-6 flex items-center gap-2">
-                        <Zap className="w-6 h-6 text-accent" />
-                        ¿Qué incluye el High Ticket Intensivo?
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <div className="flex items-start gap-4">
-                            <div className="w-12 h-12 rounded-lg bg-accent/20 flex items-center justify-center flex-shrink-0">
-                                <Clock className="w-6 h-6 text-accent" />
-                            </div>
-                            <div>
-                                <p className="font-medium text-offwhite">4 Meses Intensivos</p>
-                                <p className="text-sm text-muted mt-1">Dentro de 1 año de acceso total a la plataforma</p>
-                            </div>
-                        </div>
-                        <div className="flex items-start gap-4">
-                            <div className="w-12 h-12 rounded-lg bg-accent/20 flex items-center justify-center flex-shrink-0">
-                                <Users className="w-6 h-6 text-accent" />
-                            </div>
-                            <div>
-                                <p className="font-medium text-offwhite">Grupos Reducidos</p>
-                                <p className="text-sm text-muted mt-1">Máximo 8 personas por grupo de coaching</p>
-                            </div>
-                        </div>
-                        <div className="flex items-start gap-4">
-                            <div className="w-12 h-12 rounded-lg bg-accent/20 flex items-center justify-center flex-shrink-0">
-                                <Award className="w-6 h-6 text-accent" />
-                            </div>
-                            <div>
-                                <p className="font-medium text-offwhite">2 Calls/Semana</p>
-                                <p className="text-sm text-muted mt-1">Acompañamiento con tutor dedicado</p>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
                 {/* FAQ or additional info */}

@@ -7,6 +7,7 @@ import { RootRedirect } from "./components/RootRedirect";
 import AuthLayout from "./layouts/AuthLayout";
 import RepLayout from "./layouts/RepLayout";
 import CompanyLayout from "./layouts/CompanyLayout";
+import TrainingLayout from "./layouts/TrainingLayout";
 
 // Páginas compartidas
 import HomePage from "./pages/shared/HomePage";
@@ -14,10 +15,9 @@ import NotFoundPage from "./pages/shared/NotFoundPage";
 
 // Auth
 import LoginPage from "./pages/auth/LoginPage";
-import RegisterPage from "./pages/auth/RegisterPage";
+// Registration disabled - accounts created manually by admins
 
 // REP (comerciales)
-import RepDashboardPage from "./pages/rep/RepDashboardPage";
 import RepProfilePage from "./pages/rep/RepProfilePage";
 import RepApplicationsPage from "./pages/rep/RepApplicationsPage";
 import RepOffersPage from "./pages/rep/RepOffersPage";
@@ -49,9 +49,10 @@ export const router = createBrowserRouter([
                 path: "login",
                 element: <LoginPage />,
             },
+            // Registration disabled - accounts are created manually by admins
             {
                 path: "register",
-                element: <RegisterPage />,
+                element: <Navigate to="/login" replace />,
             },
         ],
     },
@@ -78,12 +79,10 @@ export const router = createBrowserRouter([
                 // El Layout se carga solo si la protección pasa
                 element: <RepLayout />,
                 children: [
-                    { path: "dashboard", element: <RepDashboardPage /> },
+                    { path: "dashboard", element: <Navigate to="/rep/profile" replace /> },
                     { path: "profile", element: <RepProfilePage /> },
-                    { path: "applications", element: <RepApplicationsPage /> },
-                    { path: "offers", element: <RepOffersPage /> },
-                    { path: "training", element: <RepTrainingPage /> },
                     { path: "settings", element: <RepSettingsPage /> },
+                    { path: "training", element: <RepTrainingPage /> },
                     // Redirige /rep/ a home para elegir sección
                     { index: true, element: <Navigate to="/home" replace /> },
                 ],
@@ -91,29 +90,49 @@ export const router = createBrowserRouter([
         ],
     },
 
-    // 2.5. 🎓 TRAINING MODULE ROUTES (Protected - requires authentication)
+    // 2.1. 🛡️ RUTAS DE MARKETPLACE (requieren acceso marketplace - T2+)
     {
-        path: "/training",
-        element: <ProtectedRoute allowedRoles={['REP', 'ADMIN']} />,
+        path: "/rep",
+        element: <ProtectedRoute allowedRoles={['REP', 'ADMIN']} requireMarketplace />,
         children: [
             {
-                path: "routes",
-                lazy: () => import("./pages/training/RoutesPage").then(m => ({ Component: m.default })),
+                element: <RepLayout />,
+                children: [
+                    { path: "offers", element: <RepOffersPage /> },
+                    { path: "applications", element: <RepApplicationsPage /> },
+                ],
             },
+        ],
+    },
+
+    // 2.5. 🎓 TRAINING MODULE ROUTES (requiere T0+ - prueba incluye formación)
+    {
+        path: "/training",
+        element: <ProtectedRoute allowedRoles={['REP', 'ADMIN']} requiredTier="T0" />,
+        children: [
             {
-                path: "routes/:routeId/formations",
-                lazy: () => import("./pages/training/FormationsPage").then(m => ({ Component: m.default })),
+                element: <TrainingLayout />,
+                children: [
+                    {
+                        path: "routes",
+                        lazy: () => import("./pages/training/RoutesPage").then(m => ({ Component: m.default })),
+                    },
+                    {
+                        path: "routes/:routeId/formations",
+                        lazy: () => import("./pages/training/FormationsPage").then(m => ({ Component: m.default })),
+                    },
+                    {
+                        path: "formations/:formationId",
+                        lazy: () => import("./pages/training/FormationDetailPage").then(m => ({ Component: m.default })),
+                    },
+                    {
+                        path: "lessons/:lessonId",
+                        lazy: () => import("./pages/training/LessonViewer").then(m => ({ Component: m.default })),
+                    },
+                    // Redirect /training to /training/routes
+                    { index: true, element: <Navigate to="/training/routes" replace /> },
+                ],
             },
-            {
-                path: "formations/:formationId",
-                lazy: () => import("./pages/training/FormationDetailPage").then(m => ({ Component: m.default })),
-            },
-            {
-                path: "lessons/:lessonId",
-                lazy: () => import("./pages/training/LessonViewer").then(m => ({ Component: m.default })),
-            },
-            // Redirect /training to /training/routes
-            { index: true, element: <Navigate to="/training/routes" replace /> },
         ],
     },
 

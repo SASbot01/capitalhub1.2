@@ -77,10 +77,9 @@ public class SubscriptionService {
             user.setMarketplaceVisible(true);
         }
 
-        // Handle T1 (basic) - enable marketplace visibility
+        // Handle T1 (basic) - formación completa + bolsa de trabajo
         if (newTier == SubscriptionTier.T1) {
-            // T1 doesn't have marketplace access by default
-            user.setMarketplaceVisible(false);
+            user.setMarketplaceVisible(true);
         }
 
         // Handle T0 (trial)

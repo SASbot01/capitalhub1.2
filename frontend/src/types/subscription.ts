@@ -22,28 +22,29 @@ export const TIER_INFO: Record<SubscriptionTier, TierInfo> = {
         priceLabel: '8€',
         durationDays: 14,
         features: [
-            'Acceso a módulos introductorios',
-            'Evaluación inicial gratuita',
-            'Entrada de bajo riesgo'
+            'Formación completa durante 14 días',
+            'Acceso a todas las rutas y lecciones',
+            'Sin compromiso'
         ],
         isRecurring: false,
-        hasFullFormationAccess: false,
+        hasFullFormationAccess: true,
         hasMarketplaceAccess: false
     },
     T1: {
         tier: 'T1',
-        displayName: 'Membresía Básica',
+        displayName: 'Membresía Completa',
         price: 44,
         priceLabel: '44€/mes',
         durationDays: 30,
         features: [
-            'Acceso completo a formaciones',
-            'Bolsa de trabajo básica',
-            'Comunidad de alumnos'
+            'Formación completa (todas las rutas)',
+            'Bolsa de trabajo y marketplace',
+            'Comunidad de alumnos',
+            'Asistente IA integrado'
         ],
         isRecurring: true,
         hasFullFormationAccess: true,
-        hasMarketplaceAccess: false
+        hasMarketplaceAccess: true
     },
     T2: {
         tier: 'T2',
