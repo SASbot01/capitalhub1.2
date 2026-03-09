@@ -28,6 +28,9 @@ public class TrainingModule {
 
     private Integer displayOrder;
 
+    @Column(name = "content_type")
+    private String contentType = "TECHNICAL"; // TECHNICAL or MINDSET
+
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 }

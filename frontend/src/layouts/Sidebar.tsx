@@ -1,6 +1,8 @@
 // frontend/src/layouts/Sidebar.tsx
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { useAuth } from "../context/AuthContext";
+import { useSubscription } from "../context/SubscriptionContext";
 
 interface SidebarProps {
   userName: string;
@@ -10,30 +12,31 @@ interface SidebarProps {
 interface MenuItem {
   label: string;
   to: string;
+  locked?: boolean;
 }
 
-const repMenu: MenuItem[] = [
-  { label: "Inicio", to: "/home" },
-  { label: "Dashboard", to: "/rep/dashboard" },
-  { label: "Perfil", to: "/rep/profile" },
-  { label: "Ofertas", to: "/rep/offers" },
-  { label: "Aplicaciones", to: "/rep/applications" },
-  { label: "Formación", to: "/rep/training" },
-  { label: "Ajustes", to: "/rep/settings" },
-];
-
-const companyMenu: MenuItem[] = [
-  { label: "Inicio", to: "/home" },
-  { label: "Dashboard", to: "/company/dashboard" },
-  { label: "Ofertas", to: "/company/jobs" },
-  { label: "Aplicaciones", to: "/company/applications" },
-  { label: "Ajustes", to: "/company/settings" },
-];
-
-
 export default function Sidebar({ userName, userRole }: SidebarProps) {
-  const location = useLocation();
-  const isCompany = location.pathname.startsWith("/company");
+  const { role } = useAuth();
+  const { hasMarketplaceAccess, hasFullFormationAccess, tier } = useSubscription();
+  const isCompany = role === "COMPANY";
+
+  const repMenu: MenuItem[] = [
+    { label: "Inicio", to: "/home" },
+    { label: "Perfil", to: "/rep/profile" },
+    { label: "Ofertas", to: "/rep/offers", locked: !hasMarketplaceAccess },
+    { label: "Aplicaciones", to: "/rep/applications", locked: !hasMarketplaceAccess },
+    { label: "Formación", to: "/rep/training", locked: !hasFullFormationAccess },
+    { label: "Ajustes", to: "/rep/settings" },
+  ];
+
+  const companyMenu: MenuItem[] = [
+    { label: "Inicio", to: "/home" },
+    { label: "Dashboard", to: "/company/dashboard" },
+    { label: "Ofertas", to: "/company/jobs" },
+    { label: "Aplicaciones", to: "/company/applications" },
+    { label: "Ajustes", to: "/company/settings" },
+  ];
+
   const menu = isCompany ? companyMenu : repMenu;
 
   // Estado para notificaciones
@@ -84,19 +87,28 @@ export default function Sidebar({ userName, userRole }: SidebarProps) {
           {menu.map((item) => (
             <NavLink
               key={item.to}
-              to={item.to}
+              to={item.locked ? "/upgrade" : item.to}
               className={({ isActive }) =>
                 [
                   "block px-4 py-2.5 text-xs rounded-lg transition flex justify-between items-center",
-                  isActive
-                    ? "bg-accent text-offwhite"
-                    : "text-muted hover:bg-graphite hover:text-offwhite",
+                  item.locked
+                    ? "text-muted/50 cursor-not-allowed"
+                    : isActive
+                      ? "bg-accent text-carbon"
+                      : "text-muted hover:bg-graphite hover:text-offwhite",
                 ].join(" ")
               }
             >
-              <span>{item.label}</span>
+              <span className="flex items-center gap-2">
+                {item.label}
+                {item.locked && (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                  </svg>
+                )}
+              </span>
               {/* Badge solo en 'Aplicaciones' si hay count > 0 */}
-              {item.label === "Aplicaciones" && pendingCount > 0 && (
+              {item.label === "Aplicaciones" && !item.locked && pendingCount > 0 && (
                 <span className="flex items-center justify-center min-w-[16px] h-4 px-1 rounded text-[9px] font-bold bg-accent-glow text-accent border border-accent">
                   {pendingCount}
                 </span>
@@ -104,6 +116,14 @@ export default function Sidebar({ userName, userRole }: SidebarProps) {
             </NavLink>
           ))}
         </nav>
+
+        {/* Tier Badge */}
+        {!isCompany && tier && (
+          <div className="mx-3 mt-4 px-4 py-2 bg-graphite rounded-lg">
+            <p className="text-[10px] text-muted uppercase tracking-wider">Tu plan</p>
+            <p className="text-xs font-semibold text-offwhite">{tier}</p>
+          </div>
+        )}
       </div>
 
       {/* Footer usuario */}

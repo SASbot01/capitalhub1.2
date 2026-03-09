@@ -1,10 +1,13 @@
 package com.capitalhub.training.controller;
 
+import com.capitalhub.auth.entity.User;
+import com.capitalhub.subscription.service.CoinService;
 import com.capitalhub.training.entity.*;
 import com.capitalhub.training.service.TrainingServiceV2;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,6 +19,7 @@ import java.util.Map;
 public class TrainingControllerV2 {
 
     private final TrainingServiceV2 trainingService;
+    private final CoinService coinService;
 
     // ========================================
     // ROUTES
@@ -161,15 +165,68 @@ public class TrainingControllerV2 {
     // ========================================
 
     private Long getUserIdFromAuth(Authentication auth) {
-        // Extract user ID from authentication
-        // This assumes the authentication principal contains the user ID
-        // Adjust based on your actual authentication setup
-        if (auth != null && auth.getPrincipal() instanceof org.springframework.security.core.userdetails.User) {
-            String email = ((org.springframework.security.core.userdetails.User) auth.getPrincipal()).getUsername();
-            // You'll need to fetch the user ID from the email
-            // For now, returning a placeholder - you should implement proper user lookup
-            return 1L; // TODO: Implement proper user ID extraction
+        if (auth != null && auth.getPrincipal() instanceof User) {
+            return ((User) auth.getPrincipal()).getId();
         }
         throw new RuntimeException("User not authenticated");
+    }
+
+    private User getUserFromAuth(Authentication auth) {
+        if (auth != null && auth.getPrincipal() instanceof User) {
+            return (User) auth.getPrincipal();
+        }
+        throw new RuntimeException("User not authenticated");
+    }
+
+    // ========================================
+    // ACTIVE ROUTE
+    // ========================================
+
+    @PostMapping("/active-route")
+    public ResponseEntity<Void> setActiveRoute(@RequestBody Map<String, Long> request, Authentication auth) {
+        Long userId = getUserIdFromAuth(auth);
+        Long routeId = request.get("routeId");
+        trainingService.setActiveRoute(userId, routeId);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/active-route")
+    public ResponseEntity<Route> getActiveRoute(Authentication auth) {
+        Long userId = getUserIdFromAuth(auth);
+        Route route = trainingService.getActiveRoute(userId);
+        return ResponseEntity.ok(route);
+    }
+
+    @PostMapping("/switch-route")
+    public ResponseEntity<Void> switchRoute(@RequestBody Map<String, Long> request, Authentication auth) {
+        Long userId = getUserIdFromAuth(auth);
+        Long routeId = request.get("routeId");
+        trainingService.switchRoute(userId, routeId);
+        return ResponseEntity.ok().build();
+    }
+
+    // ========================================
+    // FORMATIONS ACCESS (Level 1)
+    // ========================================
+
+    @GetMapping("/routes/{id}/formations-access")
+    public ResponseEntity<List<Map<String, Object>>> getFormationsAccess(@PathVariable Long id, Authentication auth) {
+        User user = getUserFromAuth(auth);
+        return ResponseEntity.ok(trainingService.getFormationsWithAccess(id, user));
+    }
+
+    @GetMapping("/formations/{id}/modules-access")
+    public ResponseEntity<List<Map<String, Object>>> getModulesAccess(@PathVariable Long id, Authentication auth) {
+        User user = getUserFromAuth(auth);
+        return ResponseEntity.ok(trainingService.getModulesWithAccess(id, user));
+    }
+
+    @PostMapping("/formations/{id}/unlock")
+    public ResponseEntity<Void> unlockFormation(@PathVariable Long id, Authentication auth) {
+        User user = getUserFromAuth(auth);
+        // Determine route from formation
+        Formation formation = trainingService.getFormationById(id);
+        coinService.spendCoinOnFormation(user.getId(), id, formation.getRouteId());
+        return ResponseEntity.ok().build();
     }
 }

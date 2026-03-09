@@ -1,9 +1,13 @@
 package com.capitalhub.subscription.service;
 
 import com.capitalhub.auth.entity.User;
+import com.capitalhub.auth.repository.UserRepository;
+import com.capitalhub.auth.service.EmailService;
 import com.capitalhub.subscription.entity.PaymentEvent;
+import com.capitalhub.subscription.entity.PendingPayment;
 import com.capitalhub.subscription.entity.SubscriptionTier;
 import com.capitalhub.subscription.repository.PaymentEventRepository;
+import com.capitalhub.subscription.repository.PendingPaymentRepository;
 import com.stripe.model.Event;
 import com.stripe.model.EventDataObjectDeserializer;
 import com.stripe.model.Invoice;
@@ -17,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +29,11 @@ import java.math.BigDecimal;
 public class StripeWebhookService {
 
     private final SubscriptionService subscriptionService;
+    private final CoinService coinService;
     private final PaymentEventRepository paymentEventRepository;
+    private final PendingPaymentRepository pendingPaymentRepository;
+    private final UserRepository userRepository;
+    private final EmailService emailService;
 
     @Value("${stripe.webhook-secret:}")
     private String webhookSecret;
@@ -120,7 +129,7 @@ public class StripeWebhookService {
             return;
         }
 
-        // Convert amount from cents to dollars
+        // Convert amount from cents to euros
         BigDecimal amount = BigDecimal.valueOf(amountTotal).divide(BigDecimal.valueOf(100));
 
         // Determine tier from amount
@@ -132,18 +141,46 @@ public class StripeWebhookService {
 
         log.info("Processing checkout for {} - Amount: {} - Tier: {}", customerEmail, amount, tier);
 
-        // Upgrade user
-        User user = subscriptionService.upgradeTierByEmail(
-                customerEmail,
-                tier,
-                "STRIPE",
-                session.getId(),
-                amount
-        );
+        // Check if user already exists
+        var existingUser = userRepository.findByEmail(customerEmail);
 
-        // Update Stripe customer ID
-        if (customerId != null) {
-            subscriptionService.updateStripeCustomerId(user.getId(), customerId);
+        if (existingUser.isPresent()) {
+            User user = existingUser.get();
+
+            // Detect if this is a first payment (user was T0/null -> T1)
+            boolean isFirstPayment = (user.getSubscriptionTier() == null ||
+                    user.getSubscriptionTier() == SubscriptionTier.T0);
+
+            if (isFirstPayment && tier == SubscriptionTier.T1) {
+                // First payment or re-matriculación -> activateFirstPayment
+                user = subscriptionService.activateFirstPayment(user, "STRIPE", session.getId(), amount);
+            } else {
+                // Standard upgrade
+                user = subscriptionService.upgradeTier(user, tier, "STRIPE", session.getId(), amount);
+            }
+
+            if (customerId != null) {
+                subscriptionService.updateStripeCustomerId(user.getId(), customerId);
+            }
+            log.info("Existing user {} upgraded to {}", customerEmail, tier);
+        } else {
+            // User does NOT exist -> save pending payment + send registration email
+            String token = UUID.randomUUID().toString();
+
+            PendingPayment pending = PendingPayment.builder()
+                    .email(customerEmail)
+                    .token(token)
+                    .tier(tier)
+                    .amount(amount)
+                    .provider("STRIPE")
+                    .paymentReference(session.getId())
+                    .stripeCustomerId(customerId)
+                    .build();
+            pendingPaymentRepository.save(pending);
+
+            emailService.sendRegistrationEmail(customerEmail, token);
+
+            log.info("Pending payment saved for {} - Registration email sent with token {}", customerEmail, token);
         }
     }
 
@@ -167,15 +204,22 @@ public class StripeWebhookService {
 
         BigDecimal amount = BigDecimal.valueOf(amountPaid).divide(BigDecimal.valueOf(100));
 
-        // Renew subscription
-        subscriptionService.renewSubscription(
-                user.getId(),
-                "STRIPE",
-                invoice.getId(),
-                amount
-        );
+        // Detect if this is a first payment or renewal
+        boolean isFirstPayment = (user.getSubscriptionTier() == null ||
+                user.getSubscriptionTier() == SubscriptionTier.T0);
 
-        log.info("Subscription renewed for user {} via invoice {}", user.getEmail(), invoice.getId());
+        if (isFirstPayment) {
+            // First payment -> activateFirstPayment (includes +1 coin)
+            subscriptionService.activateFirstPayment(user, "STRIPE", invoice.getId(), amount);
+            log.info("First payment activated for user {} via invoice {}", user.getEmail(), invoice.getId());
+        } else {
+            // Renewal -> extend + grant monthly coin
+            subscriptionService.renewSubscription(user.getId(), "STRIPE", invoice.getId(), amount);
+            if (user.getSubscriptionTier() == SubscriptionTier.T1) {
+                coinService.grantMonthlyCoin(user.getId());
+            }
+            log.info("Subscription renewed + coin granted for user {} via invoice {}", user.getEmail(), invoice.getId());
+        }
     }
 
     /**

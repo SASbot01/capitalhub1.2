@@ -51,6 +51,7 @@ async function request<T>(
     try {
       const data = await res.json();
       if (data?.message) message = data.message;
+      else if (data?.error) message = data.error;
     } catch { }
 
     console.error(`❌ Error ${res.status} en ${normalizedPath}: ${message}`);

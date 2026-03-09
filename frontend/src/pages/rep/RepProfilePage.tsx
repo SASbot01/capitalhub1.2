@@ -193,7 +193,7 @@ export default function RepProfilePage() {
                     className="w-16 h-16 rounded-xl object-cover"
                   />
                 ) : (
-                  <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-accent to-purple-800 text-offwhite flex items-center justify-center text-lg font-semibold">
+                  <div className="w-16 h-16 rounded-xl bg-graphite text-offwhite flex items-center justify-center text-lg font-semibold">
                     {initials}
                   </div>
                 )}
@@ -253,7 +253,7 @@ export default function RepProfilePage() {
               {!isEditing ? (
                 <button
                   onClick={startEditing}
-                  className="mt-1 inline-flex items-center justify-center px-4 py-1.5 rounded-lg bg-accent text-offwhite text-xs font-medium hover:bg-accent/80 transition-colors"
+                  className="mt-1 inline-flex items-center justify-center px-4 py-1.5 rounded-lg bg-accent text-carbon text-xs font-medium hover:bg-accent/80 transition-colors"
                 >
                   Editar perfil
                 </button>
@@ -268,7 +268,7 @@ export default function RepProfilePage() {
                   <button
                     onClick={saveProfile}
                     disabled={saving}
-                    className="px-4 py-1.5 rounded-lg bg-accent text-offwhite text-xs font-medium hover:bg-accent/80 transition disabled:opacity-50"
+                    className="px-4 py-1.5 rounded-lg bg-accent text-carbon text-xs font-medium hover:bg-accent/80 transition disabled:opacity-50"
                   >
                     {saving ? "Guardando..." : "Guardar"}
                   </button>

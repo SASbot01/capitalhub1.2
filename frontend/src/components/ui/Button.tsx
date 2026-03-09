@@ -17,7 +17,7 @@ export function Button({
   const baseStyles = "px-4 py-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-carbon disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center";
 
   const variants = {
-    primary: "bg-accent text-offwhite hover:bg-accent/80 focus:ring-accent",
+    primary: "bg-accent text-carbon hover:bg-accent/80 focus:ring-accent",
     secondary: "bg-graphite text-offwhite hover:bg-graphite/80 focus:ring-graphite",
     ghost: "bg-transparent text-muted hover:bg-graphite hover:text-offwhite",
     outline: "border border-graphite bg-transparent text-offwhite hover:bg-graphite",

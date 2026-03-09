@@ -31,11 +31,11 @@ const statusLabels: Record<string, string> = {
 
 // Dark theme status colors
 const statusColors: Record<string, { bg: string; text: string; border: string }> = {
-  APPLIED: { bg: "bg-accent/20", text: "text-accent", border: "border-accent/30" },
+  APPLIED: { bg: "bg-white/10", text: "text-white", border: "border-white/20" },
   INTERVIEW: { bg: "bg-amber-900/30", text: "text-amber-400", border: "border-amber-700/30" },
   HIRED: { bg: "bg-emerald-900/30", text: "text-emerald-400", border: "border-emerald-700/30" },
   REJECTED: { bg: "bg-red-900/30", text: "text-red-400", border: "border-red-700/30" },
-  OFFER_SENT: { bg: "bg-purple-900/30", text: "text-purple-400", border: "border-purple-700/30" },
+  OFFER_SENT: { bg: "bg-white/10", text: "text-white", border: "border-white/20" },
   WITHDRAWN: { bg: "bg-graphite", text: "text-muted", border: "border-graphite" },
 };
 

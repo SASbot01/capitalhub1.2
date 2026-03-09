@@ -69,6 +69,27 @@ public class User implements UserDetails {
     @Column(name = "stripe_customer_id")
     private String stripeCustomerId;
 
+    // --- Campos Level 1 Access System ---
+    @Column(name = "coin_balance")
+    @Builder.Default
+    private Integer coinBalance = 0;
+
+    @Column(name = "trial_started_at")
+    private LocalDateTime trialStartedAt;
+
+    @Column(name = "trial_formation_id")
+    private Long trialFormationId;
+
+    @Column(name = "trial_route_id")
+    private Long trialRouteId;
+
+    @Column(name = "has_cancelled_before")
+    @Builder.Default
+    private Boolean hasCancelledBefore = false;
+
+    @Column(name = "cancelled_at")
+    private LocalDateTime cancelledAt;
+
     // --- Métodos de Suscripción ---
 
     /**
@@ -106,6 +127,22 @@ public class User implements UserDetails {
         return isSubscriptionActive() &&
                subscriptionTier != null &&
                subscriptionTier.hasFullFormationAccess();
+    }
+
+    /**
+     * Check if user is currently in trial period (T0 and not expired)
+     */
+    public boolean isInTrial() {
+        return subscriptionTier == SubscriptionTier.T0 && isSubscriptionActive();
+    }
+
+    /**
+     * Check if user is a paid member (T1+)
+     */
+    public boolean isPaidMember() {
+        return isSubscriptionActive() &&
+               subscriptionTier != null &&
+               subscriptionTier.ordinal() >= SubscriptionTier.T1.ordinal();
     }
 
     // --- Métodos de Spring Security ---

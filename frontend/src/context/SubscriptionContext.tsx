@@ -11,6 +11,12 @@ interface SubscriptionContextType {
     isSubscriptionActive: boolean;
     hasFullFormationAccess: boolean;
     hasMarketplaceAccess: boolean;
+    coinBalance: number;
+    activeRouteId: number | null;
+    isInTrial: boolean;
+    trialFormationId: number | null;
+    hasCancelledBefore: boolean;
+    unlockedFormationIds: number[];
     refreshAccess: () => Promise<void>;
     upgradeTo: (tier: SubscriptionTier) => Promise<void>;
     canAccessTier: (requiredTier: SubscriptionTier) => boolean;
@@ -78,6 +84,12 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         isSubscriptionActive: access?.subscriptionActive ?? false,
         hasFullFormationAccess: access?.fullFormationAccess ?? false,
         hasMarketplaceAccess: access?.marketplaceAccess ?? false,
+        coinBalance: access?.coinBalance ?? 0,
+        activeRouteId: access?.activeRouteId ?? null,
+        isInTrial: access?.isInTrial ?? false,
+        trialFormationId: access?.trialFormationId ?? null,
+        hasCancelledBefore: access?.hasCancelledBefore ?? false,
+        unlockedFormationIds: access?.unlockedFormationIds ?? [],
         refreshAccess,
         upgradeTo,
         canAccessTier

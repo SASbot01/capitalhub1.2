@@ -12,24 +12,36 @@ import com.capitalhub.config.JwtService;
 import com.capitalhub.rep.entity.RepProfile;
 import com.capitalhub.rep.entity.RepRole;
 import com.capitalhub.rep.repository.RepProfileRepository;
+import com.capitalhub.subscription.entity.PendingPayment;
+import com.capitalhub.subscription.entity.SubscriptionTier;
+import com.capitalhub.subscription.repository.PendingPaymentRepository;
+import com.capitalhub.subscription.service.SubscriptionService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthenticationService {
 
         private final UserRepository userRepository;
         private final RepProfileRepository repProfileRepository;
-        private final CompanyRepository companyRepository; // ✅ Necesario para guardar la empresa
+        private final CompanyRepository companyRepository;
         private final PasswordEncoder passwordEncoder;
         private final JwtService jwtService;
         private final EmailService emailService;
         private final AuthenticationManager authenticationManager;
+        private final SubscriptionService subscriptionService;
+        private final PendingPaymentRepository pendingPaymentRepository;
 
         @Transactional
         public LoginResponse signupRep(SignupRequest request) {
@@ -59,6 +71,32 @@ public class AuthenticationService {
                                 .build();
 
                 repProfileRepository.save(repProfile);
+
+                // 3.5. Asignar tier según pago pendiente (token) o trial directo
+                Optional<PendingPayment> pendingPayment = Optional.empty();
+                if (request.getToken() != null && !request.getToken().isEmpty()) {
+                        pendingPayment = pendingPaymentRepository.findByTokenAndUsedFalse(request.getToken());
+                }
+
+                if (pendingPayment.isPresent()) {
+                        // Pago verificado via Stripe -> asignar tier del pago
+                        PendingPayment payment = pendingPayment.get();
+                        subscriptionService.upgradeTier(
+                                user,
+                                payment.getTier(),
+                                payment.getProvider(),
+                                payment.getPaymentReference(),
+                                payment.getAmount()
+                        );
+                        if (payment.getStripeCustomerId() != null) {
+                                subscriptionService.updateStripeCustomerId(user.getId(), payment.getStripeCustomerId());
+                        }
+                        payment.markUsed();
+                        pendingPaymentRepository.save(payment);
+                        log.info("Pending payment redeemed for {} - Tier: {}", user.getEmail(), payment.getTier());
+                }
+                // Trial is now started separately via POST /api/v1/trial/start
+                // after the user selects a route and formation in onboarding
 
                 // 4. Generar Token
                 var token = jwtService.generateToken(user);
@@ -108,10 +146,14 @@ public class AuthenticationService {
         }
 
         public LoginResponse login(LoginRequest request) {
-                authenticationManager.authenticate(
-                                new UsernamePasswordAuthenticationToken(
-                                                request.getEmail(),
-                                                request.getPassword()));
+                try {
+                        authenticationManager.authenticate(
+                                        new UsernamePasswordAuthenticationToken(
+                                                        request.getEmail(),
+                                                        request.getPassword()));
+                } catch (BadCredentialsException e) {
+                        throw new IllegalArgumentException("Usuario o contraseña incorrectos");
+                }
 
                 var user = userRepository.findByEmail(request.getEmail())
                                 .orElseThrow(() -> new IllegalArgumentException("Usuario o contraseña incorrectos"));

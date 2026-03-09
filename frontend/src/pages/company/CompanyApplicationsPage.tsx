@@ -36,7 +36,7 @@ const statusColors: Record<string, string> = {
   INTERVIEW: "bg-amber-900/30 text-amber-400 border-amber-700/30",
   HIRED: "bg-emerald-900/30 text-emerald-400 border-emerald-700/30",
   REJECTED: "bg-red-900/30 text-red-400 border-red-700/30",
-  OFFER_SENT: "bg-purple-900/30 text-purple-400 border-purple-700/30",
+  OFFER_SENT: "bg-white/10 text-white border-white/20",
   WITHDRAWN: "bg-graphite text-muted border-graphite",
 };
 
@@ -119,7 +119,7 @@ export default function CompanyApplicationsPage() {
               onClick={() => setStatusFilter(status.id as StatusFilter)}
               className={`px-4 py-1.5 text-xs rounded-full transition whitespace-nowrap ${
                 statusFilter === status.id
-                  ? "bg-accent text-offwhite"
+                  ? "bg-accent text-carbon"
                   : "text-muted hover:bg-graphite hover:text-offwhite"
               }`}
             >

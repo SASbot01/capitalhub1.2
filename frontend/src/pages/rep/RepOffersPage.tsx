@@ -185,7 +185,7 @@ export default function RepOffersPage() {
                         <button
                             key={f.id}
                             onClick={() => setRoleFilter(f.id as RoleFilter)}
-                            className={`px-4 py-1.5 text-xs rounded-lg transition whitespace-nowrap ${roleFilter === f.id ? "bg-accent text-offwhite" : "text-muted hover:bg-graphite hover:text-offwhite"
+                            className={`px-4 py-1.5 text-xs rounded-lg transition whitespace-nowrap ${roleFilter === f.id ? "bg-accent text-carbon" : "text-muted hover:bg-graphite hover:text-offwhite"
                                 }`}
                         >
                             {f.label}

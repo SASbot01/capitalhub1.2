@@ -344,7 +344,7 @@ export default function CompanyJobsPage() {
             <button
               type="submit"
               disabled={creating}
-              className="mt-3 w-full rounded-full bg-accent text-offwhite text-xs py-2.5 hover:bg-accent/80 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="mt-3 w-full rounded-full bg-accent text-carbon text-xs py-2.5 hover:bg-accent/80 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {creating ? "Publicando..." : "Publicar oferta"}
             </button>

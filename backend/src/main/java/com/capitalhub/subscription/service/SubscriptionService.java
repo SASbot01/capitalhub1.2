@@ -5,6 +5,10 @@ import com.capitalhub.auth.repository.UserRepository;
 import com.capitalhub.subscription.entity.SubscriptionHistory;
 import com.capitalhub.subscription.entity.SubscriptionTier;
 import com.capitalhub.subscription.repository.SubscriptionHistoryRepository;
+import com.capitalhub.training.entity.UserActiveRoute;
+import com.capitalhub.training.entity.UserFormationUnlock;
+import com.capitalhub.training.repository.UserActiveRouteRepository;
+import com.capitalhub.training.repository.UserFormationUnlockRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,6 +24,8 @@ public class SubscriptionService {
 
     private final UserRepository userRepository;
     private final SubscriptionHistoryRepository subscriptionHistoryRepository;
+    private final UserActiveRouteRepository userActiveRouteRepository;
+    private final UserFormationUnlockRepository userFormationUnlockRepository;
 
     /**
      * Upgrade user to a new tier
@@ -108,6 +114,103 @@ public class SubscriptionService {
     }
 
     /**
+     * Start free trial for a user — sets T0, 14 days, assigns route and formation
+     */
+    @Transactional
+    public User startTrial(User user, Long routeId, Long formationId) {
+        if (user.getSubscriptionTier() != null) {
+            throw new RuntimeException("El usuario ya tiene una suscripción activa");
+        }
+
+        // Set trial tier
+        user.setSubscriptionTier(SubscriptionTier.T0);
+        user.setTierExpiresAt(LocalDateTime.now().plusDays(14));
+        user.setTrialStartedAt(LocalDateTime.now());
+        user.setTrialRouteId(routeId);
+        user.setTrialFormationId(formationId);
+        user.setMarketplaceVisible(false);
+        userRepository.save(user);
+
+        // Set active route
+        userActiveRouteRepository.findByUserId(user.getId())
+                .ifPresent(existing -> userActiveRouteRepository.delete(existing));
+        UserActiveRoute activeRoute = UserActiveRoute.builder()
+                .userId(user.getId())
+                .routeId(routeId)
+                .build();
+        userActiveRouteRepository.save(activeRoute);
+
+        // Create trial unlock for the selected formation
+        if (!userFormationUnlockRepository.existsByUserIdAndFormationId(user.getId(), formationId)) {
+            UserFormationUnlock unlock = UserFormationUnlock.builder()
+                    .userId(user.getId())
+                    .formationId(formationId)
+                    .routeId(routeId)
+                    .unlockType("TRIAL")
+                    .build();
+            userFormationUnlockRepository.save(unlock);
+        }
+
+        // Record history
+        SubscriptionHistory history = SubscriptionHistory.builder()
+                .userId(user.getId())
+                .previousTier(null)
+                .newTier(SubscriptionTier.T0)
+                .changeReason("TRIAL_STARTED")
+                .paymentProvider("SYSTEM")
+                .amountPaid(BigDecimal.ZERO)
+                .build();
+        subscriptionHistoryRepository.save(history);
+
+        log.info("Trial started for user {} - Route: {}, Formation: {}", user.getEmail(), routeId, formationId);
+        return user;
+    }
+
+    /**
+     * Activate first payment — T0→T1, unlock trial formation permanently, +1 coin
+     */
+    @Transactional
+    public User activateFirstPayment(User user, String provider, String paymentReference, BigDecimal amount) {
+        SubscriptionTier previousTier = user.getSubscriptionTier();
+
+        // Upgrade to T1
+        user.setSubscriptionTier(SubscriptionTier.T1);
+        user.setTierExpiresAt(LocalDateTime.now().plusDays(30));
+        user.setMarketplaceVisible(true);
+
+        // Grant 1 coin
+        user.setCoinBalance((user.getCoinBalance() != null ? user.getCoinBalance() : 0) + 1);
+
+        userRepository.save(user);
+
+        // Upgrade trial unlock to FIRST_PAYMENT if exists
+        if (user.getTrialFormationId() != null) {
+            var unlocks = userFormationUnlockRepository.findByUserId(user.getId());
+            for (var unlock : unlocks) {
+                if ("TRIAL".equals(unlock.getUnlockType()) && unlock.getFormationId().equals(user.getTrialFormationId())) {
+                    unlock.setUnlockType("FIRST_PAYMENT");
+                    userFormationUnlockRepository.save(unlock);
+                }
+            }
+        }
+
+        // Record history
+        SubscriptionHistory history = SubscriptionHistory.builder()
+                .userId(user.getId())
+                .previousTier(previousTier)
+                .newTier(SubscriptionTier.T1)
+                .changeReason("FIRST_PAYMENT")
+                .paymentProvider(provider)
+                .paymentReference(paymentReference)
+                .amountPaid(amount)
+                .build();
+        subscriptionHistoryRepository.save(history);
+
+        log.info("First payment activated for user {} - Amount: {}", user.getEmail(), amount);
+        return user;
+    }
+
+    /**
      * Downgrade user (payment failed, subscription cancelled)
      */
     @Transactional
@@ -131,6 +234,7 @@ public class SubscriptionService {
 
     /**
      * Core downgrade logic
+     * Note: Does NOT delete coin_balance, unlocks, active route, or progress
      */
     @Transactional
     public User downgradeTier(User user, String reason, String provider) {
@@ -140,6 +244,8 @@ public class SubscriptionService {
         user.setSubscriptionTier(null);
         user.setTierExpiresAt(null);
         user.setMarketplaceVisible(false);
+        user.setHasCancelledBefore(true);
+        user.setCancelledAt(LocalDateTime.now());
 
         userRepository.save(user);
 

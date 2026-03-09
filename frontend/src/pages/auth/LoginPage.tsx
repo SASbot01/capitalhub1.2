@@ -1,14 +1,11 @@
 import type { FormEvent } from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Input from "../../components/ui/Input";
 import { Button } from "../../components/ui/Button";
 import { useAuth } from "../../context/AuthContext";
 
-type UserType = "rep" | "company";
-
 export default function LoginPage() {
-    const [userType, setUserType] = useState<UserType>("rep");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [remember, setRemember] = useState(false);
@@ -16,7 +13,14 @@ export default function LoginPage() {
     const [error, setError] = useState<string | null>(null);
 
     const navigate = useNavigate();
-    const { login: authLogin } = useAuth();
+    const { login: authLogin, logout, isAuthenticated } = useAuth();
+
+    // Limpiar sesión anterior al entrar en login
+    useEffect(() => {
+        if (isAuthenticated) {
+            logout();
+        }
+    }, []);
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
@@ -35,28 +39,12 @@ export default function LoginPage() {
 
     return (
         <div className="bg-panel rounded-xl shadow-card border border-graphite p-8">
-            <div className="flex mb-6 bg-carbon rounded-lg p-1">
-                <button
-                    type="button"
-                    onClick={() => setUserType("rep")}
-                    className={`flex-1 py-2 text-sm font-medium rounded-lg transition ${userType === "rep"
-                        ? "bg-accent text-offwhite"
-                        : "text-muted hover:text-offwhite"
-                        }`}
-                >
-                    Comercial
-                </button>
-                <button
-                    type="button"
-                    onClick={() => setUserType("company")}
-                    className={`flex-1 py-2 text-sm font-medium rounded-lg transition ${userType === "company"
-                        ? "bg-accent text-offwhite"
-                        : "text-muted hover:text-offwhite"
-                        }`}
-                >
-                    Empresa
-                </button>
-            </div>
+            <h2 className="text-xl font-display font-bold text-center text-offwhite mb-2">
+                Iniciar sesión
+            </h2>
+            <p className="text-sm text-muted text-center mb-6">
+                Accede a tu cuenta de CapitalHub
+            </p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
                 <Input
@@ -107,22 +95,6 @@ export default function LoginPage() {
                     </Button>
                 </div>
             </form>
-
-            <div className="mt-4 text-center text-xs text-muted">
-                ¿No tienes cuenta?{" "}
-                <button
-                    type="button"
-                    onClick={() => navigate("/register")}
-                    className="font-semibold text-offwhite hover:underline underline-offset-2"
-                >
-                    Regístrate
-                </button>
-            </div>
-
-            <div className="mt-4 pt-3 border-t border-graphite text-[11px] text-muted text-center">
-                Demo: usa <span className="font-mono text-accent">admin@capitalhub.com</span> para acceso
-                admin
-            </div>
         </div>
     );
 }

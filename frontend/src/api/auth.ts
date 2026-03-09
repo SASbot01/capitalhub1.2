@@ -15,6 +15,8 @@ export interface RegisterRepRequest {
   lastName: string;
   email: string;
   password: string;
+  plan?: string;
+  token?: string;
 }
 
 // DTO para registro de empresas
@@ -45,6 +47,8 @@ export async function registerRep(payload: RegisterRepRequest): Promise<LoginRes
     lastName: payload.lastName,
     email: payload.email,
     password: payload.password,
+    plan: payload.plan,
+    token: payload.token,
   });
   return response;
 }

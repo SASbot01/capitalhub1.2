@@ -41,7 +41,7 @@ public class SecurityConfig {
             .exceptionHandling(e -> e.authenticationEntryPoint((request, response, authException) -> {
                 System.out.println("⚠️ Error de autenticación en: " + request.getRequestURI());
                 System.out.println("⚠️ Mensaje: " + authException.getMessage());
-                response.sendError(jakarta.servlet.http.HttpServletResponse.SC_FORBIDDEN, authException.getMessage());
+                response.sendError(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage());
             }))
             .authenticationProvider(authenticationProvider)
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

@@ -17,17 +17,18 @@ export interface TierInfo {
 export const TIER_INFO: Record<SubscriptionTier, TierInfo> = {
     T0: {
         tier: 'T0',
-        displayName: 'Prueba 2 Semanas',
-        price: 8,
-        priceLabel: '8€',
+        displayName: 'Prueba Gratuita',
+        price: 0,
+        priceLabel: 'Gratis',
         durationDays: 14,
         features: [
-            'Formación completa durante 14 días',
-            'Acceso a todas las rutas y lecciones',
+            '14 días de acceso gratuito',
+            '3 módulos de la formación elegida',
+            'Sin tarjeta de crédito',
             'Sin compromiso'
         ],
         isRecurring: false,
-        hasFullFormationAccess: true,
+        hasFullFormationAccess: false,
         hasMarketplaceAccess: false
     },
     T1: {
@@ -107,6 +108,13 @@ export interface UserAccess {
     hasCertification: boolean;
     tierExpiresAt: string | null;
     bootcampStartDate: string | null;
+    // Level 1 Access System
+    coinBalance: number;
+    activeRouteId: number | null;
+    isInTrial: boolean;
+    trialFormationId: number | null;
+    hasCancelledBefore: boolean;
+    unlockedFormationIds: number[];
 }
 
 export interface CheckoutSessionResponse {

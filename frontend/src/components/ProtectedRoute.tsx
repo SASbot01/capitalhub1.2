@@ -16,7 +16,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   requireMarketplace = false
 }) => {
   const { isAuthenticated, role, isLoading: authLoading } = useAuth();
-  const { canAccessTier, hasMarketplaceAccess, isLoading: subLoading } = useSubscription();
+  const { canAccessTier, hasMarketplaceAccess, isLoading: subLoading, tier } = useSubscription();
 
   // Show loading while checking auth status
   if (authLoading || subLoading) {
@@ -37,8 +37,11 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/home" replace />;
   }
 
-  // Check tier requirement
+  // Check tier requirement — redirect to onboarding if no tier at all, upgrade if expired
   if (requiredTier && !canAccessTier(requiredTier)) {
+    if (!tier) {
+      return <Navigate to="/onboarding" replace />;
+    }
     return <Navigate to="/upgrade" replace />;
   }
 

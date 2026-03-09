@@ -245,7 +245,7 @@ export default function CompanySettingsPage() {
           <button
             onClick={handleSaveProfile}
             disabled={saving}
-            className="mt-4 px-4 py-2 text-xs rounded-full bg-accent text-offwhite hover:bg-accent/80 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="mt-4 px-4 py-2 text-xs rounded-full bg-accent text-carbon hover:bg-accent/80 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {saving ? "Guardando..." : "Guardar cambios"}
           </button>

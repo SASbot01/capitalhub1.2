@@ -220,7 +220,7 @@ export function TrainingRecommendationModal({ isOpen, onClose }: { isOpen: boole
                                 <Check className="w-4 h-4" /> Recomendación Personalizada
                             </div>
 
-                            <div className="w-24 h-24 bg-gradient-to-br from-accent to-purple-800 rounded-xl mx-auto flex items-center justify-center shadow-glow mb-4">
+                            <div className="w-24 h-24 bg-graphite rounded-xl mx-auto flex items-center justify-center shadow-glow mb-4">
                                 {(() => {
                                     const Icon = RECOMMENDATIONS[result].icon;
                                     return <Icon className="w-12 h-12 text-offwhite" />;

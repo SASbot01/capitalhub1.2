@@ -45,7 +45,7 @@ export default function CompanyDashboardPage() {
 
   const statusPill = (status: string) => {
     const statusMap: Record<string, { label: string; color: string }> = {
-      APPLIED: { label: "Pendiente", color: "bg-accent/20 text-accent border-accent/30" },
+      APPLIED: { label: "Pendiente", color: "bg-white/10 text-white border-white/20" },
       INTERVIEW: { label: "Entrevista", color: "bg-amber-900/30 text-amber-400 border-amber-700/30" },
       HIRED: { label: "Contratado", color: "bg-emerald-900/30 text-emerald-400 border-emerald-700/30" },
       REJECTED: { label: "Descartado", color: "bg-red-900/30 text-red-400 border-red-700/30" },

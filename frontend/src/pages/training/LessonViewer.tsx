@@ -1,50 +1,99 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { mockLessons, mockModules, getFormationById } from '../../data/trainingMockData';
-import { ArrowLeft, CheckCircle, ChevronRight, BookOpen, Clock } from 'lucide-react';
+import { ArrowLeft, CheckCircle, ChevronRight, BookOpen, Clock, Loader2 } from 'lucide-react';
+import { getLesson, getLessons, getFormation, completeLesson } from '../../api/training';
+import type { Lesson, Formation } from '../../api/training';
 
 export default function LessonViewer() {
     const { lessonId } = useParams<{ lessonId: string }>();
     const navigate = useNavigate();
+
+    const [lesson, setLesson] = useState<Lesson | null>(null);
+    const [formation, setFormation] = useState<Formation | null>(null);
+    const [moduleLessons, setModuleLessons] = useState<Lesson[]>([]);
     const [isCompleted, setIsCompleted] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [completing, setCompleting] = useState(false);
 
-    const lesson = mockLessons.find(l => l.id === Number(lessonId));
-    const module = lesson ? mockModules.find(m => m.id === lesson.moduleId) : null;
-    const formation = module ? getFormationById(module.formationId) : null;
+    useEffect(() => {
+        async function load() {
+            setLoading(true);
+            setIsCompleted(false);
+            try {
+                const lessonData = await getLesson(Number(lessonId));
+                setLesson(lessonData);
 
-    if (!lesson || !module || !formation) {
+                // Load sibling lessons in the same module
+                const siblings = await getLessons(lessonData.moduleId);
+                setModuleLessons(siblings);
+
+                // We need to get the formation — the lesson has a moduleId,
+                // and the module has a formationId
+                // For now, we'll try to get the formation from the module
+                const moduleRes = await fetch(`/api/training/modules/${lessonData.moduleId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('accessToken') || sessionStorage.getItem('accessToken')}`
+                    }
+                });
+                if (moduleRes.ok) {
+                    const moduleData = await moduleRes.json();
+                    const formationData = await getFormation(moduleData.formationId);
+                    setFormation(formationData);
+                }
+            } catch (err) {
+                console.error('Error loading lesson:', err);
+            } finally {
+                setLoading(false);
+            }
+        }
+        load();
+    }, [lessonId]);
+
+    const handleComplete = async () => {
+        if (!lesson || completing) return;
+        setCompleting(true);
+        try {
+            await completeLesson(lesson.id);
+            setIsCompleted(true);
+        } catch (err) {
+            console.error('Error completing lesson:', err);
+        } finally {
+            setCompleting(false);
+        }
+    };
+
+    if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <p className="text-xl text-gray-600">Lección no encontrada</p>
+            <div className="min-h-screen bg-carbon flex items-center justify-center">
+                <Loader2 className="w-8 h-8 text-accent animate-spin" />
             </div>
         );
     }
 
-    const allLessons = mockLessons.filter(l => l.moduleId === module.id);
-    const currentIndex = allLessons.findIndex(l => l.id === lesson.id);
-    const nextLesson = currentIndex < allLessons.length - 1 ? allLessons[currentIndex + 1] : null;
+    if (!lesson) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-carbon">
+                <p className="text-xl text-muted">Lección no encontrada</p>
+            </div>
+        );
+    }
 
-    const handleComplete = () => {
-        setIsCompleted(true);
-        // In real app, this would call API to mark lesson as completed
-    };
+    const currentIndex = moduleLessons.findIndex(l => l.id === lesson.id);
+    const nextLesson = currentIndex < moduleLessons.length - 1 ? moduleLessons[currentIndex + 1] : null;
 
     return (
-        <div className="min-h-screen bg-gray-900">
+        <div className="min-h-screen bg-carbon">
             {/* Header */}
-            <div className="bg-gray-800 border-b border-gray-700">
+            <div className="bg-panel border-b border-graphite">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex items-center justify-between">
                         <button
-                            onClick={() => navigate(`/training/formations/${formation.id}`)}
-                            className="flex items-center text-gray-300 hover:text-white transition-colors"
+                            onClick={() => formation && navigate(`/training/formations/${formation.id}`)}
+                            className="flex items-center text-muted hover:text-offwhite transition-colors"
                         >
                             <ArrowLeft className="w-5 h-5 mr-2" />
                             Volver al curso
                         </button>
-                        <div className="text-sm text-gray-400">
-                            {module.name}
-                        </div>
                     </div>
                 </div>
             </div>
@@ -55,48 +104,58 @@ export default function LessonViewer() {
                     {/* Main Content */}
                     <div className="lg:col-span-2 space-y-6">
                         {/* Video */}
-                        <div className="bg-black rounded-xl overflow-hidden aspect-video">
-                            <iframe
-                                width="100%"
-                                height="100%"
-                                src={lesson.videoUrl}
-                                title={lesson.title}
-                                frameBorder="0"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowFullScreen
-                                className="w-full h-full"
-                            />
-                        </div>
+                        {lesson.videoUrl && (
+                            <div className="bg-carbon rounded-xl overflow-hidden aspect-video border border-graphite">
+                                <iframe
+                                    width="100%"
+                                    height="100%"
+                                    src={lesson.videoUrl}
+                                    title={lesson.title}
+                                    frameBorder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowFullScreen
+                                    className="w-full h-full"
+                                />
+                            </div>
+                        )}
 
                         {/* Lesson Info */}
-                        <div className="bg-gray-800 rounded-xl p-6">
+                        <div className="bg-panel rounded-xl p-6 border border-graphite">
                             <div className="flex items-start justify-between mb-4">
                                 <div className="flex-1">
-                                    <h1 className="text-2xl font-bold text-white mb-2">
+                                    <h1 className="text-2xl font-bold text-offwhite mb-2">
                                         {lesson.title}
                                     </h1>
-                                    <div className="flex items-center gap-4 text-sm text-gray-400">
-                                        <div className="flex items-center">
-                                            <Clock className="w-4 h-4 mr-2" />
-                                            {lesson.duration}
-                                        </div>
-                                        <div className="flex items-center">
-                                            <BookOpen className="w-4 h-4 mr-2" />
-                                            {formation.name}
-                                        </div>
+                                    <div className="flex items-center gap-4 text-sm text-muted">
+                                        {lesson.duration && (
+                                            <div className="flex items-center">
+                                                <Clock className="w-4 h-4 mr-2" />
+                                                {lesson.duration}
+                                            </div>
+                                        )}
+                                        {formation && (
+                                            <div className="flex items-center">
+                                                <BookOpen className="w-4 h-4 mr-2" />
+                                                {formation.name}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
-                                {!isCompleted && lesson.status !== 'completed' && (
+                                {!isCompleted ? (
                                     <button
                                         onClick={handleComplete}
-                                        className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors flex items-center"
+                                        disabled={completing}
+                                        className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors flex items-center disabled:opacity-50"
                                     >
-                                        <CheckCircle className="w-5 h-5 mr-2" />
+                                        {completing ? (
+                                            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                        ) : (
+                                            <CheckCircle className="w-5 h-5 mr-2" />
+                                        )}
                                         Marcar como completada
                                     </button>
-                                )}
-                                {(isCompleted || lesson.status === 'completed') && (
-                                    <div className="bg-green-600/20 text-green-400 font-semibold py-2 px-6 rounded-lg flex items-center">
+                                ) : (
+                                    <div className="bg-emerald-900/30 text-emerald-400 font-semibold py-2 px-6 rounded-lg flex items-center border border-emerald-700/30">
                                         <CheckCircle className="w-5 h-5 mr-2" />
                                         Completada
                                     </div>
@@ -104,31 +163,33 @@ export default function LessonViewer() {
                             </div>
 
                             {/* Description */}
-                            <div className="border-t border-gray-700 pt-4">
-                                <h3 className="text-lg font-semibold text-white mb-2">
-                                    Descripción
-                                </h3>
-                                <p className="text-gray-300">
-                                    {lesson.content}
-                                </p>
-                            </div>
+                            {lesson.description && (
+                                <div className="border-t border-graphite pt-4">
+                                    <h3 className="text-lg font-semibold text-offwhite mb-2">
+                                        Descripción
+                                    </h3>
+                                    <p className="text-offwhite/80">
+                                        {lesson.description}
+                                    </p>
+                                </div>
+                            )}
                         </div>
 
                         {/* Next Lesson */}
                         {nextLesson && (
-                            <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-6">
+                            <div className="bg-graphite rounded-xl p-6 border border-graphite">
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <div className="text-sm text-blue-100 mb-1">
+                                        <div className="text-sm text-muted mb-1">
                                             Siguiente lección
                                         </div>
-                                        <div className="text-xl font-bold text-white">
+                                        <div className="text-xl font-bold text-offwhite">
                                             {nextLesson.title}
                                         </div>
                                     </div>
                                     <button
                                         onClick={() => navigate(`/training/lessons/${nextLesson.id}`)}
-                                        className="bg-white text-blue-600 font-semibold py-3 px-6 rounded-lg hover:bg-gray-100 transition-colors flex items-center"
+                                        className="bg-accent text-carbon font-semibold py-3 px-6 rounded-lg hover:bg-accent/80 transition-colors flex items-center"
                                     >
                                         Continuar
                                         <ChevronRight className="w-5 h-5 ml-2" />
@@ -139,40 +200,31 @@ export default function LessonViewer() {
                     </div>
 
                     {/* Sidebar - Module Lessons */}
-                    <div className="bg-gray-800 rounded-xl p-6 h-fit">
-                        <h3 className="text-lg font-bold text-white mb-4">
-                            Contenido del Módulo
+                    <div className="bg-panel rounded-xl p-6 h-fit border border-graphite">
+                        <h3 className="text-lg font-bold text-offwhite mb-4">
+                            Lecciones del Módulo
                         </h3>
                         <div className="space-y-2">
-                            {allLessons.map((l, index) => (
+                            {moduleLessons.map((l, index) => (
                                 <button
                                     key={l.id}
-                                    onClick={() => {
-                                        if (l.status !== 'locked') {
-                                            navigate(`/training/lessons/${l.id}`);
-                                        }
-                                    }}
-                                    disabled={l.status === 'locked'}
-                                    className={`w-full text-left p-3 rounded-lg transition-colors ${l.id === lesson.id
-                                            ? 'bg-blue-600 text-white'
-                                            : l.status === 'locked'
-                                                ? 'bg-gray-700/50 text-gray-500 cursor-not-allowed'
-                                                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                                        }`}
+                                    onClick={() => navigate(`/training/lessons/${l.id}`)}
+                                    className={`w-full text-left p-3 rounded-lg transition-colors ${
+                                        l.id === lesson.id
+                                            ? 'bg-accent text-carbon'
+                                            : 'bg-graphite text-offwhite hover:bg-graphite/80'
+                                    }`}
                                 >
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            {l.status === 'completed' && (
-                                                <CheckCircle className="w-4 h-4 text-green-400" />
-                                            )}
-                                            <div>
-                                                <div className="font-medium text-sm">
-                                                    {index + 1}. {l.title}
-                                                </div>
+                                    <div className="flex items-center gap-3">
+                                        <div>
+                                            <div className="font-medium text-sm">
+                                                {index + 1}. {l.title}
+                                            </div>
+                                            {l.duration && (
                                                 <div className="text-xs opacity-75">
                                                     {l.duration}
                                                 </div>
-                                            </div>
+                                            )}
                                         </div>
                                     </div>
                                 </button>

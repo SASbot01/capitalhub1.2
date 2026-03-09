@@ -67,7 +67,7 @@ export default function HomePage() {
               <div className="aspect-video rounded-lg bg-graphite flex items-center justify-center text-[11px] text-muted">
                 Placeholder vídeo Loom
               </div>
-              <button className="mt-1 px-4 py-1.5 text-xs rounded-lg bg-accent text-offwhite hover:bg-accent/80 transition">
+              <button className="mt-1 px-4 py-1.5 text-xs rounded-lg bg-accent text-carbon hover:bg-accent/80 transition">
                 Ver guía de Capital Hub (próximamente)
               </button>
             </div>

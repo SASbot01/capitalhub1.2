@@ -1,14 +1,17 @@
 import type { FormEvent } from "react";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Input from "../../components/ui/Input";
 import { Button } from "../../components/ui/Button";
 import { useAuth } from "../../context/AuthContext";
 
-type UserType = "rep" | "company";
-
 export default function RegisterPage() {
-    const [userType, setUserType] = useState<UserType>("rep");
+    const [searchParams] = useSearchParams();
+    const plan = searchParams.get("plan");
+    const token = searchParams.get("token");
+    const navigate = useNavigate();
+    const { registerRep } = useAuth();
+
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
@@ -16,46 +19,26 @@ export default function RegisterPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const navigate = useNavigate();
-    const { registerRep, registerCompany } = useAuth();
+    // Si no hay ?plan=trial, redirigir a /login
+    useEffect(() => {
+        if (plan !== "trial") {
+            navigate("/login", { replace: true });
+        }
+    }, [plan, navigate]);
+
+    // No renderizar el formulario si no hay plan válido
+    if (plan !== "trial") return null;
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         setError(null);
         setLoading(true);
 
-        if (!firstName || !lastName || !email || !password) {
-            setError("Por favor, rellena todos los campos.");
-            setLoading(false);
-            return;
-        }
-
-        if (password.length < 6) {
-            setError("La contraseña debe tener al menos 6 caracteres.");
-            setLoading(false);
-            return;
-        }
-
         try {
-            const payload = { firstName, lastName, email, password };
-
-            let res;
-            if (userType === "rep") {
-                res = await registerRep(payload);
-            } else {
-                res = await registerCompany(payload);
-            }
-
-            if (res.role === "REP") {
-                navigate("/rep/dashboard");
-            } else if (res.role === "COMPANY") {
-                navigate("/company/dashboard");
-            } else {
-                navigate("/login");
-            }
-
+            await registerRep({ firstName, lastName, email, password, plan, token: token || undefined });
+            navigate("/home");
         } catch (err: any) {
-            setError(err?.message || "Error al registrarse. Intenta de nuevo.");
+            setError(err?.message || "Error al crear la cuenta");
         } finally {
             setLoading(false);
         }
@@ -63,50 +46,22 @@ export default function RegisterPage() {
 
     return (
         <div className="bg-panel rounded-xl shadow-card border border-graphite p-8">
-            {/* TABS REP / COMPANY */}
-            <div className="flex mb-6 bg-carbon rounded-lg p-1">
-                <button
-                    type="button"
-                    onClick={() => setUserType("rep")}
-                    className={`flex-1 py-2 text-sm font-medium rounded-lg transition ${
-                        userType === "rep"
-                            ? "bg-accent text-offwhite"
-                            : "text-muted hover:text-offwhite"
-                    }`}
-                >
-                    Comercial
-                </button>
-                <button
-                    type="button"
-                    onClick={() => setUserType("company")}
-                    className={`flex-1 py-2 text-sm font-medium rounded-lg transition ${
-                        userType === "company"
-                            ? "bg-accent text-offwhite"
-                            : "text-muted hover:text-offwhite"
-                    }`}
-                >
-                    Empresa
-                </button>
-            </div>
-
             <h2 className="text-xl font-display font-bold text-center text-offwhite mb-2">
-                {userType === "rep" ? "Regístrate como Comercial" : "Registra tu Empresa"}
+                Crear cuenta
             </h2>
             <p className="text-sm text-muted text-center mb-6">
-                {userType === "rep"
-                    ? "Encuentra oportunidades como Setter, Closer o SDR"
-                    : "Publica ofertas y encuentra el mejor talento comercial"}
+                Prueba de 14 días — Acceso completo a formación
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                     <Input
-                        label={userType === "rep" ? "Nombre" : "Nombre del contacto"}
+                        label="Nombre"
                         type="text"
                         autoComplete="given-name"
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
-                        placeholder={userType === "rep" ? "Tu nombre" : "Juan"}
+                        placeholder="Juan"
                         required
                     />
                     <Input
@@ -115,7 +70,7 @@ export default function RegisterPage() {
                         autoComplete="family-name"
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
-                        placeholder="Tu apellido"
+                        placeholder="García"
                         required
                     />
                 </div>
@@ -126,7 +81,7 @@ export default function RegisterPage() {
                     autoComplete="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder={userType === "rep" ? "tuemail@ejemplo.com" : "contacto@empresa.com"}
+                    placeholder="tuemail@ejemplo.com"
                     required
                 />
 
@@ -146,30 +101,23 @@ export default function RegisterPage() {
                     </p>
                 )}
 
-                <div className="mt-4">
+                <div className="mt-2">
                     <Button type="submit" className="w-full" disabled={loading}>
-                        {loading ? "Registrando..." : "Crear Cuenta"}
+                        {loading ? "Creando cuenta..." : "Crear cuenta"}
                     </Button>
                 </div>
+
+                <p className="text-xs text-muted text-center mt-4">
+                    ¿Ya tienes cuenta?{" "}
+                    <button
+                        type="button"
+                        onClick={() => navigate("/login")}
+                        className="text-accent hover:underline"
+                    >
+                        Iniciar sesión
+                    </button>
+                </p>
             </form>
-
-            <div className="mt-4 text-center text-xs text-muted">
-                ¿Ya tienes cuenta?{" "}
-                <button
-                    type="button"
-                    onClick={() => navigate("/login")}
-                    className="font-semibold text-offwhite hover:underline underline-offset-2"
-                >
-                    Iniciar Sesión
-                </button>
-            </div>
-
-            {/* Info adicional según tipo */}
-            <div className="mt-4 pt-3 border-t border-graphite text-[11px] text-muted text-center">
-                {userType === "rep"
-                    ? "Después de registrarte podrás completar tu perfil y aplicar a ofertas."
-                    : "Después de registrarte podrás publicar ofertas de trabajo."}
-            </div>
         </div>
     );
 }

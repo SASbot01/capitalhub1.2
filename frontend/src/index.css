@@ -5,13 +5,13 @@
 /* Capital HUB CSS Custom Properties */
 :root {
   --bg-primary: #0F0F12;
-  --bg-secondary: #1A1C20;
+  --bg-secondary: #18181B;
   --bg-tertiary: #2A2D34;
   --border-color: #2A2D34;
   --text-main: #F5F6F7;
-  --text-muted: #6B6F76;
-  --accent: #5B4B8A;
-  --accent-glow: rgba(91, 75, 138, 0.2);
+  --text-muted: #6B7280;
+  --accent: #FFFFFF;
+  --accent-glow: rgba(255, 255, 255, 0.08);
 }
 
 body {
@@ -60,19 +60,19 @@ html, body {
 /* Logo Typography */
 .logo-wordmark {
   font-family: 'Inter Tight', sans-serif;
-  font-weight: 800;
-  letter-spacing: 0.35em;
+  font-weight: 500;
+  letter-spacing: 0.45em;
   text-transform: uppercase;
 }
 
 /* Accent Glow Effect */
 .accent-glow {
-  box-shadow: 0 0 20px rgba(91, 75, 138, 0.3);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
 }
 
 /* Status Colors for Dark Theme */
 .status-applied {
-  @apply bg-accent/20 text-accent border-accent/30;
+  @apply bg-white/10 text-white border-white/20;
 }
 
 .status-interview {

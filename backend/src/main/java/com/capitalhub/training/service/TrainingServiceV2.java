@@ -1,6 +1,8 @@
 package com.capitalhub.training.service;
 
 import com.capitalhub.auth.entity.User;
+import com.capitalhub.auth.repository.UserRepository;
+import com.capitalhub.subscription.entity.SubscriptionTier;
 import com.capitalhub.training.entity.*;
 import com.capitalhub.training.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,9 @@ public class TrainingServiceV2 {
     private final UserStreakRepository userStreakRepository;
     private final ExamQuestionRepository examQuestionRepository;
     private final UserExamAttemptRepository userExamAttemptRepository;
+    private final UserActiveRouteRepository userActiveRouteRepository;
+    private final UserFormationUnlockRepository userFormationUnlockRepository;
+    private final UserRepository userRepository;
 
     // ========================================
     // ROUTES
@@ -66,6 +71,153 @@ public class TrainingServiceV2 {
     public Formation getFormationById(Long id) {
         return formationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Formation not found with id: " + id));
+    }
+
+    // ========================================
+    // ACTIVE ROUTE
+    // ========================================
+
+    @Transactional
+    public void setActiveRoute(Long userId, Long routeId) {
+        // Verify route exists
+        getRouteById(routeId);
+
+        userActiveRouteRepository.findByUserId(userId)
+                .ifPresent(existing -> userActiveRouteRepository.delete(existing));
+
+        UserActiveRoute activeRoute = UserActiveRoute.builder()
+                .userId(userId)
+                .routeId(routeId)
+                .build();
+        userActiveRouteRepository.save(activeRoute);
+    }
+
+    @Transactional
+    public void switchRoute(Long userId, Long newRouteId) {
+        // Verify route exists
+        getRouteById(newRouteId);
+
+        // Delete existing active route
+        userActiveRouteRepository.findByUserId(userId)
+                .ifPresent(existing -> userActiveRouteRepository.delete(existing));
+
+        // Set new active route
+        UserActiveRoute activeRoute = UserActiveRoute.builder()
+                .userId(userId)
+                .routeId(newRouteId)
+                .build();
+        userActiveRouteRepository.save(activeRoute);
+
+        // Clear active formation (user starts fresh on new route)
+        userActiveFormationRepository.findByUserId(userId)
+                .ifPresent(existing -> userActiveFormationRepository.delete(existing));
+    }
+
+    public Route getActiveRoute(Long userId) {
+        return userActiveRouteRepository.findByUserId(userId)
+                .map(uar -> getRouteById(uar.getRouteId()))
+                .orElse(null);
+    }
+
+    public Long getActiveRouteId(Long userId) {
+        return userActiveRouteRepository.findByUserId(userId)
+                .map(UserActiveRoute::getRouteId)
+                .orElse(null);
+    }
+
+    // ========================================
+    // FORMATIONS ACCESS (Level 1)
+    // ========================================
+
+    /**
+     * Get formations with access status for a route
+     */
+    public List<Map<String, Object>> getFormationsWithAccess(Long routeId, User user) {
+        List<Formation> formations = formationRepository.findByRouteIdAndActiveOrderByDisplayOrder(routeId, true);
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        boolean isActiveTrial = user.isInTrial();
+
+        for (Formation formation : formations) {
+            Map<String, Object> item = new HashMap<>();
+            item.put("formation", formation);
+
+            boolean isUnlocked = userFormationUnlockRepository.existsByUserIdAndFormationId(user.getId(), formation.getId());
+
+            if (isUnlocked) {
+                item.put("status", "UNLOCKED");
+                item.put("isTrialAccess", false);
+            } else if (isActiveTrial) {
+                // T0 trial: full access to all formations during 14 days
+                item.put("status", "TRIAL_ACCESS");
+                item.put("isTrialAccess", true);
+            } else {
+                item.put("status", "LOCKED");
+                item.put("isTrialAccess", false);
+            }
+
+            result.add(item);
+        }
+
+        return result;
+    }
+
+    /**
+     * Get modules with access status for a formation
+     */
+    public List<Map<String, Object>> getModulesWithAccess(Long formationId, User user) {
+        List<TrainingModule> modules = moduleRepository.findByFormationIdOrderByDisplayOrder(formationId);
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        boolean formationUnlocked = userFormationUnlockRepository.existsByUserIdAndFormationId(user.getId(), formationId);
+        boolean isActiveTrial = user.isInTrial();
+        boolean isPaid = user.isPaidMember();
+
+        for (int i = 0; i < modules.size(); i++) {
+            TrainingModule module = modules.get(i);
+            Map<String, Object> item = new HashMap<>();
+            item.put("module", module);
+            item.put("contentType", module.getContentType() != null ? module.getContentType() : "TECHNICAL");
+
+            boolean isMindset = "MINDSET".equalsIgnoreCase(module.getContentType());
+
+            if (isActiveTrial) {
+                // T0 trial: full access to all modules during 14 days
+                item.put("accessible", true);
+                item.put("lockReason", null);
+            } else if (isMindset) {
+                // Mindset content: intro (first) is accessible, rest locked for annual plan
+                if (i == 0 || (formationUnlocked && isPaid)) {
+                    item.put("accessible", true);
+                    item.put("lockReason", null);
+                } else {
+                    item.put("accessible", false);
+                    item.put("lockReason", "ANNUAL_PLAN_REQUIRED");
+                }
+            } else if (formationUnlocked && isPaid) {
+                // Paid + unlocked: full access to all technical modules
+                item.put("accessible", true);
+                item.put("lockReason", null);
+            } else {
+                // Formation not unlocked
+                item.put("accessible", false);
+                item.put("lockReason", "FORMATION_LOCKED");
+            }
+
+            result.add(item);
+        }
+
+        return result;
+    }
+
+    /**
+     * Get list of unlocked formation IDs for a user
+     */
+    public List<Long> getUnlockedFormationIds(Long userId) {
+        return userFormationUnlockRepository.findByUserId(userId)
+                .stream()
+                .map(UserFormationUnlock::getFormationId)
+                .collect(Collectors.toList());
     }
 
     // ========================================

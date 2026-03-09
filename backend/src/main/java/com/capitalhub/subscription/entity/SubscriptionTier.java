@@ -4,14 +4,14 @@ import java.math.BigDecimal;
 
 /**
  * Subscription tiers for the FPD Value Ladder
- * T0 - Trial (8€, 14 days)
+ * T0 - Trial (0€, 14 days, free)
  * T1 - Basic membership (44€/month) - Formación completa + Bolsa de trabajo
  * T2 - High Ticket Intensive (1,900€, 12 months) - Venta interna
  * T3 - Pro membership (97€/month) - Venta interna
  * T4 - B2B Dashboard (3,000€, 12 months)
  */
 public enum SubscriptionTier {
-    T0("Trial", new BigDecimal("8.00"), 14, true, false),
+    T0("Trial", new BigDecimal("0.00"), 14, true, false),
     T1("Basic", new BigDecimal("44.00"), 30, true, true),
     T2("Bootcamp", new BigDecimal("1900.00"), 365, true, true),
     T3("Pro", new BigDecimal("97.00"), 30, true, true),
@@ -67,8 +67,8 @@ public enum SubscriptionTier {
         if (amount == null) return null;
 
         // Use compareTo for BigDecimal comparison
-        if (amount.compareTo(new BigDecimal("8.00")) == 0) return T0;
         if (amount.compareTo(new BigDecimal("44.00")) == 0) return T1;
+        if (amount.compareTo(new BigDecimal("150.00")) == 0) return T1; // Re-matriculación
         if (amount.compareTo(new BigDecimal("1500.00")) == 0 ||
             amount.compareTo(new BigDecimal("1900.00")) == 0) return T2;
         if (amount.compareTo(new BigDecimal("97.00")) == 0) return T3;

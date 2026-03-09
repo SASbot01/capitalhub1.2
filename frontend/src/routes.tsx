@@ -15,7 +15,7 @@ import NotFoundPage from "./pages/shared/NotFoundPage";
 
 // Auth
 import LoginPage from "./pages/auth/LoginPage";
-// Registration disabled - accounts created manually by admins
+import RegisterPage from "./pages/auth/RegisterPage";
 
 // REP (comerciales)
 import RepProfilePage from "./pages/rep/RepProfilePage";
@@ -49,10 +49,9 @@ export const router = createBrowserRouter([
                 path: "login",
                 element: <LoginPage />,
             },
-            // Registration disabled - accounts are created manually by admins
             {
                 path: "register",
-                element: <Navigate to="/login" replace />,
+                element: <RegisterPage />,
             },
         ],
     },
@@ -101,6 +100,18 @@ export const router = createBrowserRouter([
                     { path: "offers", element: <RepOffersPage /> },
                     { path: "applications", element: <RepApplicationsPage /> },
                 ],
+            },
+        ],
+    },
+
+    // 2.4. 🎓 ONBOARDING (selección ruta + formación para trial)
+    {
+        path: "/onboarding",
+        element: <ProtectedRoute allowedRoles={['REP', 'ADMIN']} />,
+        children: [
+            {
+                index: true,
+                lazy: () => import("./pages/onboarding/OnboardingPage").then(m => ({ Component: m.default })),
             },
         ],
     },
