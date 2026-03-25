@@ -25,7 +25,7 @@ UPDATE formations SET description = 'Aprende a iniciar conversaciones comerciale
 WHERE id = 4;
 
 -- Deactivate SDR/MDR (Formation 3) - not in Adrián's final list
-UPDATE formations SET is_active = false WHERE id = 3;
+UPDATE formations SET active = false WHERE id = 3;
 
 -- == META ADS (Route 3, was Marketing Digital) ==
 UPDATE routes SET name = 'Meta Ads', description = 'Aprende a crear, gestionar y escalar campañas de publicidad en Meta Ads. La profesión detrás del crecimiento de cualquier negocio digital.'
@@ -36,7 +36,7 @@ UPDATE formations SET name = 'Meta Ads', description = 'Aprende a lanzar, optimi
 WHERE id = 7;
 
 -- Deactivate "Lanzamientos y Evergreen" (Formation 8)
-UPDATE formations SET is_active = false WHERE id = 8;
+UPDATE formations SET active = false WHERE id = 8;
 
 -- == FUNDAMENTOS (Route 7) ==
 UPDATE routes SET description = 'La base que necesitas antes de aprender cualquier profesión digital. Contexto, mentalidad y principios para que la formación técnica produzca resultados.'
