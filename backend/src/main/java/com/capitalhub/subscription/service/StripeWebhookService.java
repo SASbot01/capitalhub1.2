@@ -2,6 +2,7 @@ package com.capitalhub.subscription.service;
 
 import com.capitalhub.auth.entity.User;
 import com.capitalhub.auth.repository.UserRepository;
+import com.capitalhub.auth.service.AuthenticationService;
 import com.capitalhub.auth.service.EmailService;
 import com.capitalhub.subscription.entity.PaymentEvent;
 import com.capitalhub.subscription.entity.PendingPayment;
@@ -34,6 +35,7 @@ public class StripeWebhookService {
     private final PendingPaymentRepository pendingPaymentRepository;
     private final UserRepository userRepository;
     private final EmailService emailService;
+    private final AuthenticationService authenticationService;
 
     @Value("${stripe.webhook-secret:}")
     private String webhookSecret;
@@ -132,11 +134,11 @@ public class StripeWebhookService {
         // Convert amount from cents to euros
         BigDecimal amount = BigDecimal.valueOf(amountTotal).divide(BigDecimal.valueOf(100));
 
-        // Determine tier from amount
+        // Determine tier from amount (only T1 exists: 44€ production, 8€ test)
         SubscriptionTier tier = SubscriptionTier.fromAmount(amount);
         if (tier == null) {
-            log.error("Unknown amount for tier determination: {}", amount);
-            return;
+            log.warn("Unknown amount {} - defaulting to T1 (only tier available)", amount);
+            tier = SubscriptionTier.T1;
         }
 
         log.info("Processing checkout for {} - Amount: {} - Tier: {}", customerEmail, amount, tier);
@@ -164,9 +166,27 @@ public class StripeWebhookService {
             }
             log.info("Existing user {} upgraded to {}", customerEmail, tier);
         } else {
-            // User does NOT exist -> save pending payment + send registration email
-            String token = UUID.randomUUID().toString();
+            // User does NOT exist -> auto-create account + assign tier + send credentials
+            log.info("Auto-creating account for new Stripe customer: {}", customerEmail);
 
+            // Generate password and create user
+            String plainPassword = authenticationService.generateRandomPassword();
+            User newUser = authenticationService.autoCreateUserFromPayment(customerEmail, plainPassword);
+
+            // Activate subscription tier
+            if (tier == SubscriptionTier.T1) {
+                subscriptionService.activateFirstPayment(newUser, "STRIPE", session.getId(), amount);
+            } else {
+                subscriptionService.upgradeTier(newUser, tier, "STRIPE", session.getId(), amount);
+            }
+
+            // Link Stripe customer ID
+            if (customerId != null) {
+                subscriptionService.updateStripeCustomerId(newUser.getId(), customerId);
+            }
+
+            // Also save as pending payment (backup, in case they need to re-register)
+            String token = UUID.randomUUID().toString();
             PendingPayment pending = PendingPayment.builder()
                     .email(customerEmail)
                     .token(token)
@@ -176,11 +196,13 @@ public class StripeWebhookService {
                     .paymentReference(session.getId())
                     .stripeCustomerId(customerId)
                     .build();
+            pending.markUsed();
             pendingPaymentRepository.save(pending);
 
-            emailService.sendRegistrationEmail(customerEmail, token);
+            // Send email with credentials
+            emailService.sendAutoAccountEmail(customerEmail, plainPassword, tier.getDisplayName());
 
-            log.info("Pending payment saved for {} - Registration email sent with token {}", customerEmail, token);
+            log.info("Auto-created account for {} with tier {} - Credentials sent by email", customerEmail, tier);
         }
     }
 

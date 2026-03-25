@@ -32,7 +32,8 @@ public class CoinService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found: " + userId));
 
-        user.setCoinBalance(user.getCoinBalance() + 1);
+        int current = user.getCoinBalance() != null ? user.getCoinBalance() : 0;
+        user.setCoinBalance(current + 1);
         userRepository.save(user);
 
         CoinTransaction tx = CoinTransaction.builder()
@@ -54,7 +55,8 @@ public class CoinService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found: " + userId));
 
-        user.setCoinBalance(user.getCoinBalance() + 1);
+        int current = user.getCoinBalance() != null ? user.getCoinBalance() : 0;
+        user.setCoinBalance(current + 1);
         userRepository.save(user);
 
         CoinTransaction tx = CoinTransaction.builder()
@@ -77,19 +79,14 @@ public class CoinService {
                 .orElseThrow(() -> new RuntimeException("User not found: " + userId));
 
         // Validate coin balance
-        if (user.getCoinBalance() <= 0) {
-            throw new RuntimeException("No tienes monedas disponibles");
+        if (user.getCoinBalance() == null || user.getCoinBalance() <= 0) {
+            throw new IllegalStateException("No tienes monedas disponibles");
         }
 
-        // Validate formation not already unlocked
+        // If already unlocked, return silently (idempotent)
         if (userFormationUnlockRepository.existsByUserIdAndFormationId(userId, formationId)) {
-            throw new RuntimeException("Esta formación ya está desbloqueada");
-        }
-
-        // Validate formation is in active route
-        var activeRoute = userActiveRouteRepository.findByUserId(userId);
-        if (activeRoute.isEmpty() || !activeRoute.get().getRouteId().equals(routeId)) {
-            throw new RuntimeException("La formación debe pertenecer a tu ruta activa");
+            log.info("Formation {} already unlocked for user {}, skipping", formationId, userId);
+            return;
         }
 
         // Spend coin

@@ -31,6 +31,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/v1/webhooks/**").permitAll()
+                .requestMatchers("/api/admin/**").permitAll()
                 .requestMatchers("/error").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                 .anyRequest().authenticated()

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, ChevronDown, ChevronRight, Lock, Play,
-    Clock, Award, Users, BookOpen, Loader2, Shield
+    Award, BookOpen, Loader2, Shield
 } from 'lucide-react';
 import {
     getFormation, getModulesAccess, getLessons, getFormationProgress as getProgress, getRoute
@@ -150,18 +150,12 @@ export default function FormationDetailPage() {
                                     <BookOpen className="w-5 h-5 mr-2" />
                                     <span>{modulesAccess.length} Módulos</span>
                                 </div>
-                                <div className="flex items-center">
-                                    <Clock className="w-5 h-5 mr-2" />
-                                    <span>{formation.estimatedHours || 40} horas</span>
-                                </div>
-                                <div className="flex items-center">
-                                    <Award className="w-5 h-5 mr-2" />
-                                    <span>Certificación al completar</span>
-                                </div>
-                                <div className="flex items-center">
-                                    <Users className="w-5 h-5 mr-2" />
-                                    <span>Comunidad privada</span>
-                                </div>
+                                {modulesAccess.length > 0 && (
+                                    <div className="flex items-center">
+                                        <Award className="w-5 h-5 mr-2" />
+                                        <span>Certificación al completar</span>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -197,6 +191,16 @@ export default function FormationDetailPage() {
                         <h2 className="text-2xl font-bold text-offwhite mb-6">
                             Contenido del Curso
                         </h2>
+
+                        {modulesAccess.length === 0 && (
+                            <div className="bg-panel rounded-xl p-12 text-center border border-graphite">
+                                <BookOpen className="w-12 h-12 text-muted mx-auto mb-4" />
+                                <h3 className="text-xl font-bold text-offwhite mb-2">Contenido próximamente</h3>
+                                <p className="text-muted max-w-md mx-auto">
+                                    Estamos preparando el contenido de esta formación. Pronto estará disponible con vídeos, ejercicios y certificación.
+                                </p>
+                            </div>
+                        )}
 
                         <div className="space-y-4">
                             {modulesAccess.map((item, _moduleIndex) => {
@@ -362,41 +366,25 @@ export default function FormationDetailPage() {
                             </div>
                         )}
 
-                        {/* Community Card */}
-                        <div className="bg-panel rounded-xl p-6 shadow-card border border-graphite">
-                            <h3 className="text-lg font-bold text-offwhite mb-3">
-                                Comunidad Privada
-                            </h3>
-                            <p className="text-sm text-muted mb-4">
-                                Accede a nuestra comunidad exclusiva en Discord para conectar con otros estudiantes
-                            </p>
-                            <a
-                                href="https://discord.gg/WpEznQPeZb"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="block w-full text-center bg-graphite hover:bg-graphite/80 text-offwhite font-semibold py-3 px-6 rounded-lg transition-colors border border-graphite"
-                            >
-                                Unirse a Discord
-                            </a>
-                        </div>
 
-                        {/* Certification Card */}
-                        <div className="bg-panel rounded-xl p-6 shadow-card border border-graphite">
-                            <div className="flex items-center gap-3 mb-3">
-                                <Award className="w-6 h-6 text-amber-400" />
-                                <h3 className="text-lg font-bold text-offwhite">
-                                    Certificación
-                                </h3>
+                        {modulesAccess.length > 0 && (
+                            <div className="bg-panel rounded-xl p-6 shadow-card border border-graphite">
+                                <div className="flex items-center gap-3 mb-3">
+                                    <Award className="w-6 h-6 text-amber-400" />
+                                    <h3 className="text-lg font-bold text-offwhite">
+                                        Certificación
+                                    </h3>
+                                </div>
+                                <p className="text-sm text-muted mb-4">
+                                    Al completar esta formación, recibirás un certificado oficial que valida tus habilidades
+                                </p>
+                                <div className="text-xs text-muted">
+                                    • Examen final de 10 preguntas<br />
+                                    • 70% mínimo para aprobar<br />
+                                    • Certificado digital descargable
+                                </div>
                             </div>
-                            <p className="text-sm text-muted mb-4">
-                                Al completar esta formación, recibirás un certificado oficial que valida tus habilidades
-                            </p>
-                            <div className="text-xs text-muted">
-                                • Examen final de 10 preguntas<br />
-                                • 70% mínimo para aprobar<br />
-                                • Certificado digital descargable
-                            </div>
-                        </div>
+                        )}
                     </div>
                 </div>
             </div>

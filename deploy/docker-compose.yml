@@ -61,7 +61,7 @@ services:
     ports:
       - "8082:8081"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/capitalhub?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/capitalhub?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&useUnicode=true
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: admin
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
@@ -76,15 +76,15 @@ services:
       MINIO_BUCKET: capitalhub-media
       MINIO_PUBLIC_URL: http://localhost:9000
 
-      # 👇 CONFIGURACIÓN DE CORREO (IONOS)
-      MAIL_HOST: smtp.ionos.es
+      # 👇 CONFIGURACIÓN DE CORREO (Google Workspace)
+      MAIL_HOST: smtp.gmail.com
       MAIL_PORT: 587
-      MAIL_USERNAME: info@capitalhub.es
-      MAIL_PASSWORD: "infoA39b2@llinfo"
+      MAIL_USERNAME: adrian@capitalhubapp.com
+      MAIL_PASSWORD: "${MAIL_PASSWORD}"
 
       # 👇 STRIPE (Pagos)
-      STRIPE_API_KEY: "${STRIPE_API_KEY:-}"
-      STRIPE_WEBHOOK_SECRET: "${STRIPE_WEBHOOK_SECRET:-}"
+      STRIPE_API_KEY: "${STRIPE_API_KEY}"
+      STRIPE_WEBHOOK_SECRET: "${STRIPE_WEBHOOK_SECRET}"
 
       # 👇 HOTMART (Opcional - pagos alternativos)
       HOTMART_HOTTOK: "${HOTMART_HOTTOK:-}"
@@ -93,7 +93,7 @@ services:
       ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY:-}"
 
       # 👇 URLS PÚBLICAS
-      FRONTEND_URL: "${FRONTEND_URL:-http://localhost}"
+      FRONTEND_URL: "https://capitalhub.es"
 
     depends_on:
       mysql:

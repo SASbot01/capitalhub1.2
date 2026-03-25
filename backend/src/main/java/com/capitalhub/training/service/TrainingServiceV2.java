@@ -2,7 +2,9 @@ package com.capitalhub.training.service;
 
 import com.capitalhub.auth.entity.User;
 import com.capitalhub.auth.repository.UserRepository;
+import com.capitalhub.subscription.entity.CoinTransaction;
 import com.capitalhub.subscription.entity.SubscriptionTier;
+import com.capitalhub.subscription.repository.CoinTransactionRepository;
 import com.capitalhub.training.entity.*;
 import com.capitalhub.training.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +33,7 @@ public class TrainingServiceV2 {
     private final UserActiveRouteRepository userActiveRouteRepository;
     private final UserFormationUnlockRepository userFormationUnlockRepository;
     private final UserRepository userRepository;
+    private final CoinTransactionRepository coinTransactionRepository;
 
     // ========================================
     // ROUTES
@@ -143,8 +146,10 @@ public class TrainingServiceV2 {
             item.put("formation", formation);
 
             boolean isUnlocked = userFormationUnlockRepository.existsByUserIdAndFormationId(user.getId(), formation.getId());
+            boolean isIntro = Boolean.TRUE.equals(formation.getIsIntroModule());
 
-            if (isUnlocked) {
+            if (isUnlocked || isIntro) {
+                // Intro modules are always unlocked for everyone
                 item.put("status", "UNLOCKED");
                 item.put("isTrialAccess", false);
             } else if (isActiveTrial) {
@@ -169,6 +174,8 @@ public class TrainingServiceV2 {
         List<TrainingModule> modules = moduleRepository.findByFormationIdOrderByDisplayOrder(formationId);
         List<Map<String, Object>> result = new ArrayList<>();
 
+        Formation formation = getFormationById(formationId);
+        boolean isIntroFormation = Boolean.TRUE.equals(formation.getIsIntroModule());
         boolean formationUnlocked = userFormationUnlockRepository.existsByUserIdAndFormationId(user.getId(), formationId);
         boolean isActiveTrial = user.isInTrial();
         boolean isPaid = user.isPaidMember();
@@ -181,7 +188,11 @@ public class TrainingServiceV2 {
 
             boolean isMindset = "MINDSET".equalsIgnoreCase(module.getContentType());
 
-            if (isActiveTrial) {
+            if (isIntroFormation) {
+                // Intro formations (like MIFG) are fully accessible to everyone
+                item.put("accessible", true);
+                item.put("lockReason", null);
+            } else if (isActiveTrial) {
                 // T0 trial: full access to all modules during 14 days
                 item.put("accessible", true);
                 item.put("lockReason", null);
@@ -218,6 +229,13 @@ public class TrainingServiceV2 {
                 .stream()
                 .map(UserFormationUnlock::getFormationId)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Check if a formation is unlocked for a user (via coin spend or first payment)
+     */
+    public boolean isFormationUnlockedForUser(Long userId, Long formationId) {
+        return userFormationUnlockRepository.existsByUserIdAndFormationId(userId, formationId);
     }
 
     // ========================================
@@ -554,6 +572,11 @@ public class TrainingServiceV2 {
         if (passed) {
             Formation formation = getFormationById(formationId);
 
+            boolean alreadyCertified = userCertificationRepository
+                    .findByUserIdAndFormationId(userId, formationId)
+                    .map(c -> Boolean.TRUE.equals(c.getPassed()))
+                    .orElse(false);
+
             UserCertification certification = userCertificationRepository
                     .findByUserIdAndFormationId(userId, formationId)
                     .orElse(new UserCertification());
@@ -565,6 +588,23 @@ public class TrainingServiceV2 {
             certification.setPassed(true);
             certification.setCertifiedAt(LocalDateTime.now());
             userCertificationRepository.save(certification);
+
+            // Grant +1 coin for first certification of this formation
+            if (!alreadyCertified) {
+                User user = userRepository.findById(userId)
+                        .orElseThrow(() -> new RuntimeException("User not found"));
+                user.setCoinBalance((user.getCoinBalance() != null ? user.getCoinBalance() : 0) + 1);
+                userRepository.save(user);
+
+                CoinTransaction tx = CoinTransaction.builder()
+                        .userId(userId)
+                        .amount(1)
+                        .transactionType("CERTIFICATION_REWARD")
+                        .referenceId(formationId)
+                        .description("Moneda por certificación en " + formation.getName())
+                        .build();
+                coinTransactionRepository.save(tx);
+            }
         }
 
         Map<String, Object> result = new HashMap<>();

@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 /**
  * Subscription tiers for the FPD Value Ladder
  * T0 - Trial (0€, 14 days, free)
+ * STARTER - Intro plan (8€, 14 days) - Formación completa, sin bolsa
  * T1 - Basic membership (44€/month) - Formación completa + Bolsa de trabajo
  * T2 - High Ticket Intensive (1,900€, 12 months) - Venta interna
  * T3 - Pro membership (97€/month) - Venta interna
@@ -12,6 +13,7 @@ import java.math.BigDecimal;
  */
 public enum SubscriptionTier {
     T0("Trial", new BigDecimal("0.00"), 14, true, false),
+    STARTER("Starter", new BigDecimal("8.00"), 14, true, false),
     T1("Basic", new BigDecimal("44.00"), 30, true, true),
     T2("Bootcamp", new BigDecimal("1900.00"), 365, true, true),
     T3("Pro", new BigDecimal("97.00"), 30, true, true),
@@ -61,18 +63,17 @@ public enum SubscriptionTier {
     }
 
     /**
-     * Determine tier from payment amount
+     * Determine tier from payment amount.
+     * Currently only T1 (44€/month) exists in production.
+     * 8€ is the Stripe test price → also maps to T1.
      */
     public static SubscriptionTier fromAmount(BigDecimal amount) {
         if (amount == null) return null;
 
-        // Use compareTo for BigDecimal comparison
+        // T1 - Basic (44€/month production)
         if (amount.compareTo(new BigDecimal("44.00")) == 0) return T1;
-        if (amount.compareTo(new BigDecimal("150.00")) == 0) return T1; // Re-matriculación
-        if (amount.compareTo(new BigDecimal("1500.00")) == 0 ||
-            amount.compareTo(new BigDecimal("1900.00")) == 0) return T2;
-        if (amount.compareTo(new BigDecimal("97.00")) == 0) return T3;
-        if (amount.compareTo(new BigDecimal("3000.00")) == 0) return T4;
+        // STARTER - Intro plan (8€, 14 days)
+        if (amount.compareTo(new BigDecimal("8.00")) == 0) return STARTER;
 
         return null;
     }

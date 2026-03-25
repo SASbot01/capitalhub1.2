@@ -51,15 +51,15 @@ export const mockRoutes: Route[] = [
     {
         id: 1,
         name: 'Comercial PRO',
-        description: 'Domina las profesiones digitales más demandadas en ventas. Aprende a generar valor real en el mercado comercial digital: Setter, Closer, SDR y Cold Caller.',
+        description: 'Conviértete en un profesional de ventas de alto rendimiento. Domina las habilidades comerciales más demandadas del mercado digital. Desde agendar reuniones hasta cerrar ventas de alto valor por teléfono.',
         displayOrder: 1,
         imageUrl: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&q=80',
         active: true
     },
     {
         id: 3,
-        name: 'Marketing Digital',
-        description: 'Campañas, embudos y estrategias de crecimiento. Aprende a escalar negocios con Meta Ads, Google Ads y lanzamientos digitales.',
+        name: 'Meta Ads',
+        description: 'Aprende a crear, gestionar y escalar campañas de publicidad en Meta Ads. La profesión detrás del crecimiento de cualquier negocio digital.',
         displayOrder: 2,
         imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80',
         active: true
@@ -72,7 +72,7 @@ export const mockFormations: Formation[] = [
         id: 1,
         routeId: 1,
         name: 'Appointment Setter',
-        description: 'Aprende a llenar calendarios con leads cualificados. Domina la prospección y agendamiento de citas de alto valor.',
+        description: 'Aprende a cualificar prospectos y agendar llamadas de venta con decisores. El primer rol en cualquier equipo comercial.',
         level: 'Básico',
         displayOrder: 1,
         estimatedHours: 40
@@ -81,47 +81,29 @@ export const mockFormations: Formation[] = [
         id: 2,
         routeId: 1,
         name: 'Closer High Ticket',
-        description: 'Domina el arte de cerrar ventas de alto valor. Aprende frameworks de cierre y gestión de objeciones.',
+        description: 'Aprende a cerrar ventas de alto valor por teléfono. Frameworks de cierre, manejo de objeciones y psicología de venta.',
         level: 'Intermedio',
         displayOrder: 2,
         estimatedHours: 60
     },
     {
-        id: 3,
-        routeId: 1,
-        name: 'SDR/MDR',
-        description: 'Prospección y desarrollo de ventas B2B. Conviértete en un Sales Development Representative profesional.',
-        level: 'Intermedio',
-        displayOrder: 3,
-        estimatedHours: 50
-    },
-    {
         id: 4,
         routeId: 1,
         name: 'Cold Caller',
-        description: 'Optimización de llamadas en frío. Aprende a convertir llamadas frías en oportunidades calientes.',
-        level: 'Avanzado',
-        displayOrder: 4,
+        description: 'Aprende a iniciar conversaciones comerciales por teléfono frío. Estructura de llamada, apertura, cualificación y transición a cita.',
+        level: 'Básico',
+        displayOrder: 3,
         estimatedHours: 45
     },
-    // Marketing Digital
+    // Meta Ads
     {
         id: 7,
         routeId: 3,
-        name: 'Meta Ads & Google Ads',
-        description: 'Domina campañas de pago en las plataformas más importantes. Aprende a escalar con ROAS positivo.',
-        level: 'Intermedio',
+        name: 'Meta Ads',
+        description: 'Aprende a lanzar, optimizar y escalar campañas de pago en Meta Ads. Segmentación, creativos, métricas y gestión de presupuesto.',
+        level: 'Básico',
         displayOrder: 1,
         estimatedHours: 50
-    },
-    {
-        id: 8,
-        routeId: 3,
-        name: 'Lanzamientos y Evergreen',
-        description: 'Diseña y ejecuta lanzamientos digitales. Crea embudos evergreen que venden 24/7.',
-        level: 'Avanzado',
-        displayOrder: 2,
-        estimatedHours: 65
     }
 ];
 

@@ -61,8 +61,8 @@ const RECOMMENDATIONS = {
         icon: Zap
     },
     marketing: {
-        title: "Marketing Digital",
-        description: "Eres un estratega nato. Tu perfil encaja perfectamente con la creación de campañas, lanzamientos y generación de demanda.",
+        title: "Meta Ads",
+        description: "Eres un estratega nato. Tu perfil encaja perfectamente con la creación y gestión de campañas de publicidad en Meta Ads.",
         routeId: "3",
         icon: Target
     },

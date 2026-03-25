@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Clock, TrendingUp, Home, Coins, RefreshCw, Loader2 } from 'lucide-react';
+import { ArrowRight, TrendingUp, Home, Coins, RefreshCw, Loader2, Settings } from 'lucide-react';
 import { getRoutes, getActiveRoute, switchRoute as switchRouteApi } from '../../api/training';
 import { useSubscription } from '../../context/SubscriptionContext';
 import type { Route } from '../../api/training';
@@ -77,11 +77,21 @@ export default function RoutesPage() {
                             <span className="text-sm font-medium">Inicio</span>
                         </button>
 
-                        {/* Coin Balance */}
-                        <div className="flex items-center gap-2 bg-graphite px-4 py-2 rounded-lg">
-                            <Coins className="w-4 h-4 text-amber-400" />
-                            <span className="text-sm font-bold text-offwhite">{coinBalance}</span>
-                            <span className="text-xs text-muted">monedas</span>
+                        <div className="flex items-center gap-3">
+                            {/* Coin Balance */}
+                            <div className="flex items-center gap-2 bg-graphite px-4 py-2 rounded-lg">
+                                <Coins className="w-4 h-4 text-amber-400" />
+                                <span className="text-sm font-bold text-offwhite">{coinBalance}</span>
+                                <span className="text-xs text-muted">monedas</span>
+                            </div>
+                            {/* Settings */}
+                            <button
+                                onClick={() => navigate('/rep/settings')}
+                                className="p-2 text-muted hover:text-offwhite transition-colors rounded-lg hover:bg-graphite"
+                                title="Ajustes"
+                            >
+                                <Settings className="w-5 h-5" />
+                            </button>
                         </div>
                     </div>
 
@@ -90,8 +100,7 @@ export default function RoutesPage() {
                             Elige tu profesión
                         </h1>
                         <p className="text-xl text-muted max-w-3xl mx-auto">
-                            Elige tu ruta y conviértete en un profesional digital certificado.
-                            Formación intensiva y bolsa de empleo.
+                            Elige tu ruta. Fórmate. Trabaja
                         </p>
                     </div>
                 </div>
@@ -145,10 +154,6 @@ export default function RoutesPage() {
                                     {/* Stats */}
                                     <div className="flex items-center justify-between mb-4">
                                         <div className="flex items-center text-sm text-muted">
-                                            <Clock className="w-4 h-4 mr-2" />
-                                            <span>40-60 horas</span>
-                                        </div>
-                                        <div className="flex items-center text-sm text-muted">
                                             <TrendingUp className="w-4 h-4 mr-2" />
                                             <span>Alta demanda</span>
                                         </div>
@@ -189,18 +194,18 @@ export default function RoutesPage() {
                 {/* Bottom CTA */}
                 <div className="mt-16 text-center bg-panel rounded-xl p-12 text-offwhite border border-graphite">
                     <h2 className="text-3xl font-display font-bold mb-4">
-                        Únete a la Comunidad Comercial PRO
+                        Únete a la Comunidad de CapitalHub
                     </h2>
                     <p className="text-xl mb-8 text-muted">
-                        Conecta con otros profesionales, comparte experiencias y crece juntos
+                        Entra en la comunidad, comparte avances y rodéate de personas que están en el mismo camino que tú.
                     </p>
                     <a
-                        href="https://discord.gg/WpEznQPeZb"
+                        href="https://discord.gg/kWKtHSBr"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-block bg-accent text-carbon font-semibold py-3 px-8 rounded-lg hover:bg-accent/80 transition-colors"
                     >
-                        Únete a la Comunidad Comercial PRO
+                        Únete a Discord
                     </a>
                 </div>
             </div>

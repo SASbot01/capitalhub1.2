@@ -34,16 +34,13 @@ public class ChatService {
 
             Rutas disponibles:
 
-            1. COMERCIAL PRO - Para quienes quieren trabajar directamente en ventas:
-               - Setter: Cualificacion de leads, primer contacto con prospectos
-               - Closer: Cierre de ventas, negociacion avanzada
-               - SDR (Sales Development Rep): Prospeccion outbound, generacion de pipeline
-               - Cold Caller: Llamadas en frio, scripts de venta
+            1. COMERCIAL PRO - Conviertete en un profesional de ventas de alto rendimiento:
+               - Appointment Setter: Cualificacion de prospectos y agendar llamadas de venta con decisores
+               - Closer High Ticket: Cierre de ventas de alto valor por telefono, frameworks de cierre, manejo de objeciones
+               - Cold Caller: Conversaciones comerciales por telefono frio, estructura de llamada, apertura y cualificacion
 
-            2. MARKETING DIGITAL - Para quienes prefieren el lado digital:
-               - Meta Ads: Publicidad en Facebook e Instagram, segmentacion, creatividades
-               - Google Ads: SEM, campanas de busqueda y display
-               - Lanzamientos: Estrategias de lanzamiento digital, funnels, webinars
+            2. META ADS - Publicidad digital en Meta:
+               - Meta Ads: Lanzar, optimizar y escalar campanas de pago en Meta Ads, segmentacion, creativos y metricas
 
             Haz preguntas para entender:
             - Experiencia previa del usuario

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, CheckCircle, ChevronRight, BookOpen, Clock, Loader2 } from 'lucide-react';
+import { ArrowLeft, CheckCircle, ChevronRight, BookOpen, Loader2 } from 'lucide-react';
 import { getLesson, getLessons, getFormation, completeLesson } from '../../api/training';
 import type { Lesson, Formation } from '../../api/training';
 
@@ -106,16 +106,28 @@ export default function LessonViewer() {
                         {/* Video */}
                         {lesson.videoUrl && (
                             <div className="bg-carbon rounded-xl overflow-hidden aspect-video border border-graphite">
-                                <iframe
-                                    width="100%"
-                                    height="100%"
-                                    src={lesson.videoUrl}
-                                    title={lesson.title}
-                                    frameBorder="0"
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                    allowFullScreen
-                                    className="w-full h-full"
-                                />
+                                {/\.(mp4|mov|webm|ogg)(\?|$)/i.test(lesson.videoUrl) ? (
+                                    <video
+                                        controls
+                                        controlsList="nodownload"
+                                        className="w-full h-full"
+                                        key={lesson.videoUrl}
+                                    >
+                                        <source src={lesson.videoUrl} type={lesson.videoUrl.endsWith('.mov') ? 'video/mp4' : undefined} />
+                                        Tu navegador no soporta la reproducción de video.
+                                    </video>
+                                ) : (
+                                    <iframe
+                                        width="100%"
+                                        height="100%"
+                                        src={lesson.videoUrl}
+                                        title={lesson.title}
+                                        frameBorder="0"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowFullScreen
+                                        className="w-full h-full"
+                                    />
+                                )}
                             </div>
                         )}
 
@@ -127,12 +139,6 @@ export default function LessonViewer() {
                                         {lesson.title}
                                     </h1>
                                     <div className="flex items-center gap-4 text-sm text-muted">
-                                        {lesson.duration && (
-                                            <div className="flex items-center">
-                                                <Clock className="w-4 h-4 mr-2" />
-                                                {lesson.duration}
-                                            </div>
-                                        )}
                                         {formation && (
                                             <div className="flex items-center">
                                                 <BookOpen className="w-4 h-4 mr-2" />
@@ -220,11 +226,6 @@ export default function LessonViewer() {
                                             <div className="font-medium text-sm">
                                                 {index + 1}. {l.title}
                                             </div>
-                                            {l.duration && (
-                                                <div className="text-xs opacity-75">
-                                                    {l.duration}
-                                                </div>
-                                            )}
                                         </div>
                                     </div>
                                 </button>

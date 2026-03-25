@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Topbar from "../../layouts/Topbar";
 import { useFetch } from "../../hooks/useFetch";
 import { apiClient } from "../../api/client";
+import { useSubscription } from "../../context/SubscriptionContext";
 
 interface RepProfile {
   id: number;
@@ -21,6 +22,7 @@ interface RepProfile {
 }
 
 export default function RepSettingsPage() {
+  const { tier, isSubscriptionActive, refreshAccess } = useSubscription();
   const { data: profile, isLoading, error, refetch } = useFetch<RepProfile>("/rep/me", true);
 
   // Estados del formulario
@@ -77,22 +79,55 @@ export default function RepSettingsPage() {
     }
   };
 
+  // Estado para cancelar suscripción
+  const [cancelling, setCancelling] = useState(false);
+  const [cancelConfirm, setCancelConfirm] = useState(false);
+  const [passwordMessage, setPasswordMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
   const handleChangePassword = async () => {
+    setPasswordMessage(null);
+
+    if (!currentPassword) {
+      setPasswordMessage({ type: "error", text: "Introduce tu contraseña actual" });
+      return;
+    }
+
     if (newPassword !== confirmPassword) {
-      alert("Las contraseñas no coinciden");
+      setPasswordMessage({ type: "error", text: "Las contraseñas no coinciden" });
       return;
     }
 
     if (newPassword.length < 6) {
-      alert("La contraseña debe tener al menos 6 caracteres");
+      setPasswordMessage({ type: "error", text: "La contraseña debe tener al menos 6 caracteres" });
       return;
     }
 
-    // TODO: Implementar cambio de contraseña en el backend
-    alert("Funcionalidad de cambio de contraseña próximamente");
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
+    try {
+      await apiClient.post("/api/auth/change-password", {
+        currentPassword,
+        newPassword,
+      }, true);
+      setPasswordMessage({ type: "success", text: "Contraseña actualizada correctamente" });
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (err: any) {
+      setPasswordMessage({ type: "error", text: err?.message || "Error al cambiar la contraseña" });
+    }
+  };
+
+  const handleCancelSubscription = async () => {
+    setCancelling(true);
+    try {
+      await apiClient.post("/api/auth/cancel-subscription", {}, true);
+      await refreshAccess();
+      setCancelConfirm(false);
+      setSaveMessage({ type: "success", text: "Suscripción cancelada. Tus datos y progreso se mantienen." });
+    } catch (err: any) {
+      setSaveMessage({ type: "error", text: err?.message || "Error al cancelar la suscripción" });
+    } finally {
+      setCancelling(false);
+    }
   };
 
   const inputClass = "w-full rounded-2xl border border-graphite px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-accent focus:border-accent bg-carbon text-offwhite placeholder:text-muted";
@@ -231,6 +266,16 @@ export default function RepSettingsPage() {
           <div className="bg-panel rounded-3xl shadow-card border border-graphite px-6 py-6">
             <h2 className="text-sm font-semibold mb-4 text-offwhite">Seguridad</h2>
 
+            {passwordMessage && (
+              <div className={`mb-3 px-3 py-2 rounded-xl text-xs ${
+                passwordMessage.type === "success"
+                  ? "bg-emerald-900/30 border border-emerald-700/30 text-emerald-400"
+                  : "bg-red-900/30 border border-red-700/30 text-red-400"
+              }`}>
+                {passwordMessage.text}
+              </div>
+            )}
+
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
                 <label className="block text-[11px] text-muted mb-1">Contraseña actual</label>
@@ -297,6 +342,46 @@ export default function RepSettingsPage() {
           </div>
         </div>
       </section>
+
+      {/* SUSCRIPCIÓN */}
+      {tier && isSubscriptionActive && (
+        <section className="bg-panel rounded-3xl shadow-card border border-graphite px-6 py-5">
+          <h2 className="text-sm font-semibold mb-2 text-offwhite">Suscripción</h2>
+          <p className="text-[11px] text-muted mb-3">
+            Tu plan actual: <span className="text-offwhite font-medium">{tier}</span>
+          </p>
+
+          {!cancelConfirm ? (
+            <button
+              onClick={() => setCancelConfirm(true)}
+              className="px-4 py-2 text-xs rounded-full border border-amber-700/30 text-amber-400 hover:bg-amber-900/30 transition"
+            >
+              Cancelar suscripción
+            </button>
+          ) : (
+            <div className="bg-red-900/10 border border-red-700/30 rounded-2xl p-4">
+              <p className="text-xs text-red-400 mb-3">
+                ¿Estás seguro? Perderás acceso a las formaciones y el marketplace. Tus monedas y progreso se mantienen.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={handleCancelSubscription}
+                  disabled={cancelling}
+                  className="px-4 py-2 text-xs rounded-full bg-red-600 text-white hover:bg-red-700 transition disabled:opacity-50"
+                >
+                  {cancelling ? "Cancelando..." : "Sí, cancelar suscripción"}
+                </button>
+                <button
+                  onClick={() => setCancelConfirm(false)}
+                  className="px-4 py-2 text-xs rounded-full border border-graphite text-muted hover:bg-graphite transition"
+                >
+                  No, mantener
+                </button>
+              </div>
+            </div>
+          )}
+        </section>
+      )}
 
       {/* ZONA DE CUENTA */}
       <section className="bg-panel rounded-3xl shadow-card border border-graphite px-6 py-5">

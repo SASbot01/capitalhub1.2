@@ -193,7 +193,6 @@ export default function OnboardingPage() {
                                     </p>
                                     <div className="flex items-center justify-between">
                                         <span className="text-xs text-muted">
-                                            {formation.estimatedHours || 40} horas
                                         </span>
                                         {submitting && selectedFormation?.id === formation.id ? (
                                             <Loader2 className="w-4 h-4 text-accent animate-spin" />

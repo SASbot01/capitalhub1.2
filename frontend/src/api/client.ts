@@ -66,7 +66,11 @@ async function request<T>(
   }
 
   if (res.status === 204) return {} as T;
-  return (await res.json()) as T;
+
+  // Handle empty responses (e.g. 200 OK with no body)
+  const text = await res.text();
+  if (!text) return {} as T;
+  return JSON.parse(text) as T;
 }
 
 export const apiClient = {

@@ -2,6 +2,8 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 // 🟢 Importamos el componente de protección
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { RootRedirect } from "./components/RootRedirect";
+import { lazyImport } from "./utils/lazyWithRetry";
+import ErrorPage from "./pages/shared/ErrorPage";
 
 // Layouts
 import AuthLayout from "./layouts/AuthLayout";
@@ -38,6 +40,7 @@ export const router = createBrowserRouter([
     // 1. Rutas Públicas/Auth
     {
         path: "/", // Add path for top-level Auth route
+        errorElement: <ErrorPage />,
         element: <AuthLayout />,
         children: [
             // Ruta raíz: Redirige inteligente
@@ -59,6 +62,7 @@ export const router = createBrowserRouter([
     // 1.5. 🏠 HOME PAGE (Protected - after login)
     {
         path: "/home",
+        errorElement: <ErrorPage />,
         element: <ProtectedRoute allowedRoles={['REP', 'COMPANY', 'ADMIN']} />,
         children: [
             {
@@ -71,6 +75,7 @@ export const router = createBrowserRouter([
     // 2. 🛡️ RUTAS PROTEGIDAS DE REP
     {
         path: "/rep",
+        errorElement: <ErrorPage />,
         // El elemento de protección se ejecuta primero
         element: <ProtectedRoute allowedRoles={['REP', 'ADMIN']} />,
         children: [
@@ -92,6 +97,7 @@ export const router = createBrowserRouter([
     // 2.1. 🛡️ RUTAS DE MARKETPLACE (requieren acceso marketplace - T2+)
     {
         path: "/rep",
+        errorElement: <ErrorPage />,
         element: <ProtectedRoute allowedRoles={['REP', 'ADMIN']} requireMarketplace />,
         children: [
             {
@@ -107,11 +113,12 @@ export const router = createBrowserRouter([
     // 2.4. 🎓 ONBOARDING (selección ruta + formación para trial)
     {
         path: "/onboarding",
+        errorElement: <ErrorPage />,
         element: <ProtectedRoute allowedRoles={['REP', 'ADMIN']} />,
         children: [
             {
                 index: true,
-                lazy: () => import("./pages/onboarding/OnboardingPage").then(m => ({ Component: m.default })),
+                lazy: lazyImport(() => import("./pages/onboarding/OnboardingPage")),
             },
         ],
     },
@@ -119,6 +126,7 @@ export const router = createBrowserRouter([
     // 2.5. 🎓 TRAINING MODULE ROUTES (requiere T0+ - prueba incluye formación)
     {
         path: "/training",
+        errorElement: <ErrorPage />,
         element: <ProtectedRoute allowedRoles={['REP', 'ADMIN']} requiredTier="T0" />,
         children: [
             {
@@ -126,19 +134,19 @@ export const router = createBrowserRouter([
                 children: [
                     {
                         path: "routes",
-                        lazy: () => import("./pages/training/RoutesPage").then(m => ({ Component: m.default })),
+                        lazy: lazyImport(() => import("./pages/training/RoutesPage")),
                     },
                     {
                         path: "routes/:routeId/formations",
-                        lazy: () => import("./pages/training/FormationsPage").then(m => ({ Component: m.default })),
+                        lazy: lazyImport(() => import("./pages/training/FormationsPage")),
                     },
                     {
                         path: "formations/:formationId",
-                        lazy: () => import("./pages/training/FormationDetailPage").then(m => ({ Component: m.default })),
+                        lazy: lazyImport(() => import("./pages/training/FormationDetailPage")),
                     },
                     {
                         path: "lessons/:lessonId",
-                        lazy: () => import("./pages/training/LessonViewer").then(m => ({ Component: m.default })),
+                        lazy: lazyImport(() => import("./pages/training/LessonViewer")),
                     },
                     // Redirect /training to /training/routes
                     { index: true, element: <Navigate to="/training/routes" replace /> },
@@ -150,11 +158,12 @@ export const router = createBrowserRouter([
     // 2.6. 💳 SUBSCRIPTION ROUTES
     {
         path: "/upgrade",
+        errorElement: <ErrorPage />,
         element: <ProtectedRoute allowedRoles={['REP', 'COMPANY', 'ADMIN']} />,
         children: [
             {
                 index: true,
-                lazy: () => import("./pages/subscription/UpgradePage").then(m => ({ Component: m.default })),
+                lazy: lazyImport(() => import("./pages/subscription/UpgradePage")),
             },
         ],
     },
@@ -164,7 +173,7 @@ export const router = createBrowserRouter([
         children: [
             {
                 index: true,
-                lazy: () => import("./pages/subscription/SuccessPage").then(m => ({ Component: m.default })),
+                lazy: lazyImport(() => import("./pages/subscription/SuccessPage")),
             },
         ],
     },

@@ -64,7 +64,18 @@ public class TrainingControllerV2 {
     }
 
     @GetMapping("/modules/{id}/lessons")
-    public ResponseEntity<List<Lesson>> getLessonsByModule(@PathVariable Long id) {
+    public ResponseEntity<?> getLessonsByModule(@PathVariable Long id, Authentication auth) {
+        User user = getUserFromAuth(auth);
+        TrainingModule module = trainingService.getModuleById(id);
+        Formation formation = trainingService.getFormationById(module.getFormationId());
+        boolean isIntro = Boolean.TRUE.equals(formation.getIsIntroModule());
+        boolean isUnlocked = trainingService.isFormationUnlockedForUser(user.getId(), formation.getId());
+        boolean isTrial = user.isInTrial();
+
+        if (!isIntro && !isUnlocked && !isTrial) {
+            return ResponseEntity.status(403).body(Map.of("message", "Formación bloqueada"));
+        }
+
         return ResponseEntity.ok(trainingService.getLessonsByModule(id));
     }
 
@@ -73,15 +84,29 @@ public class TrainingControllerV2 {
     // ========================================
 
     @GetMapping("/lessons/{id}")
-    public ResponseEntity<Lesson> getLessonById(@PathVariable Long id) {
-        return ResponseEntity.ok(trainingService.getLessonById(id));
+    public ResponseEntity<?> getLessonById(@PathVariable Long id, Authentication auth) {
+        User user = getUserFromAuth(auth);
+        Lesson lesson = trainingService.getLessonById(id);
+
+        // Check formation-level access via the module
+        TrainingModule module = trainingService.getModuleById(lesson.getModuleId());
+        Formation formation = trainingService.getFormationById(module.getFormationId());
+        boolean isIntro = Boolean.TRUE.equals(formation.getIsIntroModule());
+        boolean isUnlocked = trainingService.isFormationUnlockedForUser(user.getId(), formation.getId());
+        boolean isTrial = user.isInTrial();
+
+        if (!isIntro && !isUnlocked && !isTrial) {
+            return ResponseEntity.status(403).body(Map.of("message", "Formación bloqueada. Usa una moneda para desbloquearla."));
+        }
+
+        return ResponseEntity.ok(lesson);
     }
 
     @PostMapping("/lessons/{id}/complete")
     public ResponseEntity<Void> markLessonCompleted(@PathVariable Long id, Authentication auth) {
         Long userId = getUserIdFromAuth(auth);
         trainingService.markLessonCompleted(userId, id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/lessons/{id}/unlocked")
@@ -100,7 +125,7 @@ public class TrainingControllerV2 {
         Long userId = getUserIdFromAuth(auth);
         Long formationId = request.get("formationId");
         trainingService.setActiveFormation(userId, formationId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/active-formation")
@@ -187,7 +212,7 @@ public class TrainingControllerV2 {
         Long userId = getUserIdFromAuth(auth);
         Long routeId = request.get("routeId");
         trainingService.setActiveRoute(userId, routeId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/active-route")
@@ -202,7 +227,7 @@ public class TrainingControllerV2 {
         Long userId = getUserIdFromAuth(auth);
         Long routeId = request.get("routeId");
         trainingService.switchRoute(userId, routeId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     // ========================================
@@ -222,11 +247,15 @@ public class TrainingControllerV2 {
     }
 
     @PostMapping("/formations/{id}/unlock")
-    public ResponseEntity<Void> unlockFormation(@PathVariable Long id, Authentication auth) {
+    public ResponseEntity<?> unlockFormation(@PathVariable Long id, Authentication auth) {
         User user = getUserFromAuth(auth);
-        // Determine route from formation
-        Formation formation = trainingService.getFormationById(id);
-        coinService.spendCoinOnFormation(user.getId(), id, formation.getRouteId());
-        return ResponseEntity.ok().build();
+        try {
+            // Determine route from formation
+            Formation formation = trainingService.getFormationById(id);
+            coinService.spendCoinOnFormation(user.getId(), id, formation.getRouteId());
+            return ResponseEntity.ok(Map.of("message", "Formación desbloqueada"));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
     }
 }

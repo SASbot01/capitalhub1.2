@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.security.SecureRandom;
 import java.util.Optional;
 
 @Service
@@ -160,6 +161,66 @@ public class AuthenticationService {
 
                 var token = jwtService.generateToken(user);
                 return buildResponse(user, token);
+        }
+
+        /**
+         * Auto-create a REP user from Stripe payment (no manual registration needed).
+         * Accepts a plain-text password so it can be emailed to the user.
+         */
+        @Transactional
+        public User autoCreateUserFromPayment(String email, String plainPassword) {
+                // Check if user already exists
+                if (userRepository.findByEmail(email).isPresent()) {
+                        return userRepository.findByEmail(email).get();
+                }
+
+                // Extract name from email (before @)
+                String namePart = email.split("@")[0]
+                        .replaceAll("[._-]", " ")
+                        .trim();
+                String firstName = namePart.isEmpty() ? "Usuario" : capitalize(namePart);
+
+                // Create user
+                var user = User.builder()
+                        .firstName(firstName)
+                        .lastName("")
+                        .email(email)
+                        .password(passwordEncoder.encode(plainPassword))
+                        .role(Role.REP)
+                        .build();
+                userRepository.save(user);
+
+                // Create default RepProfile
+                var repProfile = RepProfile.builder()
+                        .user(user)
+                        .roleType(RepRole.SETTER)
+                        .active(true)
+                        .bio("Cuenta creada automáticamente")
+                        .country("Sin definir")
+                        .build();
+                repProfileRepository.save(repProfile);
+
+                log.info("Auto-created user account for: {}", email);
+                return user;
+        }
+
+        /**
+         * Get the plain password for a freshly auto-created user.
+         * Called only from the webhook flow.
+         */
+        public String generateRandomPassword() {
+                String chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
+                SecureRandom random = new SecureRandom();
+                StringBuilder sb = new StringBuilder(10);
+                for (int i = 0; i < 10; i++) {
+                        sb.append(chars.charAt(random.nextInt(chars.length())));
+                }
+                return sb.toString();
+        }
+
+        private String capitalize(String s) {
+                if (s == null || s.isEmpty()) return s;
+                return Character.toUpperCase(s.charAt(0)) + s.substring(1);
         }
 
         private LoginResponse buildResponse(User user, String token) {

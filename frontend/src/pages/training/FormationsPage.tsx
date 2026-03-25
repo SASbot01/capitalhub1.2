@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-    ArrowLeft, Clock, Award, Users, Home, Coins,
-    Lock, Loader2, CheckCircle
+    ArrowLeft, Award, Users, Home, Coins,
+    Lock, Loader2, CheckCircle, Settings
 } from 'lucide-react';
 import { getRoute, getFormationsAccess, unlockFormation } from '../../api/training';
 import { useSubscription } from '../../context/SubscriptionContext';
@@ -69,19 +69,6 @@ export default function FormationsPage() {
         return Math.max(0, Math.ceil((expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
     };
 
-    const getLevelColor = (level: string) => {
-        switch (level) {
-            case 'Básico':
-                return 'bg-emerald-900/30 text-emerald-400 border-emerald-700/30';
-            case 'Intermedio':
-                return 'bg-amber-900/30 text-amber-400 border-amber-700/30';
-            case 'Avanzado':
-                return 'bg-red-900/30 text-red-400 border-red-700/30';
-            default:
-                return 'bg-graphite text-muted';
-        }
-    };
-
     if (loading) {
         return (
             <div className="min-h-screen bg-carbon flex items-center justify-center">
@@ -137,6 +124,13 @@ export default function FormationsPage() {
                                 <span className="text-sm font-bold text-offwhite">{coinBalance}</span>
                                 <span className="text-xs text-muted">monedas</span>
                             </div>
+                            <button
+                                onClick={() => navigate('/rep/settings')}
+                                className="p-2 text-muted hover:text-offwhite transition-colors rounded-lg hover:bg-graphite"
+                                title="Ajustes"
+                            >
+                                <Settings className="w-5 h-5" />
+                            </button>
                             <button
                                 onClick={() => navigate('/home')}
                                 className="flex items-center gap-2 text-muted hover:text-offwhite transition-colors"
@@ -225,9 +219,6 @@ export default function FormationsPage() {
                                             }`}>
                                                 {formation.name}
                                             </h3>
-                                            <span className={`inline-block px-3 py-1 rounded-lg text-xs font-semibold border ${getLevelColor(formation.level)}`}>
-                                                {formation.level}
-                                            </span>
                                         </div>
 
                                         {/* Status Badge */}
@@ -253,16 +244,14 @@ export default function FormationsPage() {
                                     </p>
 
                                     {/* Stats */}
-                                    <div className="flex items-center justify-between mb-4 pb-4 border-b border-graphite">
-                                        <div className="flex items-center text-sm text-muted">
-                                            <Clock className="w-4 h-4 mr-2" />
-                                            <span>{formation.estimatedHours || 40} horas</span>
+                                    {!formation.isIntroModule && (
+                                        <div className="flex items-center justify-between mb-4 pb-4 border-b border-graphite">
+                                            <div className="flex items-center text-sm text-muted">
+                                                <CheckCircle className="w-4 h-4 mr-2" />
+                                                <span>Certificación incluida</span>
+                                            </div>
                                         </div>
-                                        <div className="flex items-center text-sm text-muted">
-                                            <CheckCircle className="w-4 h-4 mr-2" />
-                                            <span>Certificación incluida</span>
-                                        </div>
-                                    </div>
+                                    )}
 
                                     {/* CTA */}
                                     {isUnlocked && (
@@ -314,27 +303,6 @@ export default function FormationsPage() {
                     })}
                 </div>
 
-                {/* Community CTA */}
-                <div className="mt-12 bg-panel rounded-xl p-8 text-offwhite border border-graphite">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h3 className="text-2xl font-display font-bold mb-2">
-                                Únete a la Comunidad {route.name}
-                            </h3>
-                            <p className="text-lg text-muted">
-                                Conecta con otros profesionales, comparte experiencias y crece juntos
-                            </p>
-                        </div>
-                        <a
-                            href="https://discord.gg/WpEznQPeZb"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-block bg-accent text-carbon font-semibold py-3 px-8 rounded-lg hover:bg-accent/80 transition-colors whitespace-nowrap"
-                        >
-                            Acceder a Discord
-                        </a>
-                    </div>
-                </div>
             </div>
         </div>
     );

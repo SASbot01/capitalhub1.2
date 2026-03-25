@@ -178,8 +178,8 @@ public class SubscriptionService {
         user.setTierExpiresAt(LocalDateTime.now().plusDays(30));
         user.setMarketplaceVisible(true);
 
-        // Grant 1 coin
-        user.setCoinBalance((user.getCoinBalance() != null ? user.getCoinBalance() : 0) + 1);
+        // Grant 2 welcome coins
+        user.setCoinBalance((user.getCoinBalance() != null ? user.getCoinBalance() : 0) + 2);
 
         userRepository.save(user);
 
@@ -276,6 +276,8 @@ public class SubscriptionService {
         switch (tier) {
             case T0:
                 return now.plusDays(14); // 14-day trial
+            case STARTER:
+                return now.plusDays(14); // 14-day starter
             case T1:
                 return now.plusDays(30); // Monthly recurring
             case T2:
