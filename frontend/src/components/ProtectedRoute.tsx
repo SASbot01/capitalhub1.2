@@ -37,8 +37,11 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/home" replace />;
   }
 
+  // ADMIN bypasses all tier and marketplace checks
+  const isAdmin = role === 'ADMIN';
+
   // Check tier requirement — redirect to onboarding if no tier at all, upgrade if expired
-  if (requiredTier && !canAccessTier(requiredTier)) {
+  if (!isAdmin && requiredTier && !canAccessTier(requiredTier)) {
     if (!tier) {
       return <Navigate to="/onboarding" replace />;
     }
@@ -46,7 +49,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   // Check marketplace access requirement
-  if (requireMarketplace && !hasMarketplaceAccess) {
+  if (!isAdmin && requireMarketplace && !hasMarketplaceAccess) {
     return <Navigate to="/upgrade" replace />;
   }
 

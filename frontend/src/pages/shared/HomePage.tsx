@@ -8,12 +8,18 @@ export default function HomePage() {
   const { user, logout } = useAuth();
   const { hasMarketplaceAccess, hasFullFormationAccess, tier, access } = useSubscription();
 
+  const isAdmin = user?.role === 'ADMIN';
+
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
   const handleMarketplace = () => {
+    if (isAdmin) {
+      navigate('/rep/profile');
+      return;
+    }
     if (!hasMarketplaceAccess && user?.role === 'REP') {
       navigate('/upgrade');
       return;
@@ -26,7 +32,7 @@ export default function HomePage() {
   };
 
   const handleTraining = () => {
-    if (!hasFullFormationAccess) {
+    if (!isAdmin && !hasFullFormationAccess) {
       navigate('/upgrade');
       return;
     }
@@ -66,7 +72,7 @@ export default function HomePage() {
                 className="flex items-center gap-2 px-4 py-2 text-muted hover:text-offwhite transition-colors"
               >
                 <LogOut className="w-5 h-5" />
-                <span>Cerrar sesión</span>
+                <span>Cerrar sesion</span>
               </button>
             </div>
           </div>
@@ -77,11 +83,19 @@ export default function HomePage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-offwhite mb-4">
-            ¿Por dónde empezamos?
+            {isAdmin ? 'Panel de Control' : '¿Por donde empezamos?'}
           </h2>
 
+          {/* Admin Badge */}
+          {isAdmin && (
+            <div className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-accent/10 border border-accent/30 rounded-full">
+              <Shield className="w-4 h-4 text-accent" />
+              <span className="text-xs font-bold text-accent">Administrador</span>
+            </div>
+          )}
+
           {/* Tier Badge */}
-          {tier && (
+          {!isAdmin && tier && (
             <div className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-panel border border-graphite rounded-full">
               <span className="text-xs text-muted">Tu plan:</span>
               <span className="text-xs font-bold text-offwhite">{access?.tierDisplayName || tier}</span>
@@ -90,7 +104,7 @@ export default function HomePage() {
               )}
             </div>
           )}
-          {!tier && user?.role === 'REP' && (
+          {!isAdmin && !tier && user?.role === 'REP' && (
             <button
               onClick={() => navigate('/upgrade')}
               className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-accent text-carbon text-xs font-bold rounded-full hover:bg-offwhite transition"
@@ -100,23 +114,48 @@ export default function HomePage() {
           )}
         </div>
 
+        {/* Admin Panel Card - FIRST for admins */}
+        {isAdmin && (
+          <div className="max-w-5xl mx-auto mb-8">
+            <button
+              onClick={() => navigate('/admin/routes')}
+              className="w-full group relative bg-panel rounded-xl shadow-card transition-all duration-300 overflow-hidden border border-accent/30 hover:border-accent hover:shadow-glow transform hover:-translate-y-1"
+            >
+              <div className="p-8 flex items-center gap-6">
+                <div className="w-20 h-20 bg-accent/10 rounded-xl flex items-center justify-center transform group-hover:scale-110 transition-transform">
+                  <Shield className="w-10 h-10 text-accent" />
+                </div>
+                <div className="text-left flex-1">
+                  <h3 className="text-2xl font-bold text-offwhite">Gestionar Formaciones</h3>
+                  <p className="text-sm text-muted mt-2">Crea y organiza rutas, formaciones, bloques y clases con URLs de GoHighLevel</p>
+                </div>
+                <div className="flex-shrink-0">
+                  <div className="px-4 py-2 bg-accent text-carbon text-sm font-bold rounded-lg">
+                    Abrir Panel
+                  </div>
+                </div>
+              </div>
+            </button>
+          </div>
+        )}
+
         {/* Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
           {/* Marketplace Card */}
           <button
             onClick={handleMarketplace}
             className={`group relative bg-panel rounded-xl shadow-card transition-all duration-300 overflow-hidden border transform hover:-translate-y-2 ${
-              hasMarketplaceAccess || user?.role === 'COMPANY'
+              hasMarketplaceAccess || user?.role === 'COMPANY' || isAdmin
                 ? 'hover:shadow-glow border-graphite hover:border-offwhite/30'
                 : 'border-graphite/50 opacity-80'
             }`}
           >
             <div className="relative p-8">
               {/* Lock overlay for REP without marketplace */}
-              {!hasMarketplaceAccess && user?.role === 'REP' && (
+              {!hasMarketplaceAccess && user?.role === 'REP' && !isAdmin && (
                 <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-graphite/80 px-2.5 py-1 rounded-full">
                   <Lock className="w-3 h-3 text-muted" />
-                  <span className="text-[10px] text-muted font-medium">Requiere Membresía (44€/mes)</span>
+                  <span className="text-[10px] text-muted font-medium">Requiere Membresia (44€/mes)</span>
                 </div>
               )}
 
@@ -130,7 +169,7 @@ export default function HomePage() {
                 Marketplace
               </h3>
               <p className="text-muted mb-6">
-                Encuentra tu próximo trabajo remoto
+                Encuentra tu proximo trabajo remoto
               </p>
 
               {/* Features */}
@@ -151,7 +190,7 @@ export default function HomePage() {
 
               {/* CTA */}
               <div className="inline-flex items-center gap-2 text-offwhite font-semibold group-hover:gap-3 transition-all">
-                <span>{hasMarketplaceAccess || user?.role === 'COMPANY' ? 'Ir al Marketplace' : 'Desbloquear Marketplace'}</span>
+                <span>{hasMarketplaceAccess || user?.role === 'COMPANY' || isAdmin ? 'Ir al Marketplace' : 'Desbloquear Marketplace'}</span>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
@@ -163,17 +202,17 @@ export default function HomePage() {
           <button
             onClick={handleTraining}
             className={`group relative bg-panel rounded-xl shadow-card transition-all duration-300 overflow-hidden border transform hover:-translate-y-2 ${
-              hasFullFormationAccess
+              hasFullFormationAccess || isAdmin
                 ? 'hover:shadow-glow border-graphite hover:border-offwhite/30'
                 : 'border-graphite/50 opacity-80'
             }`}
           >
             <div className="relative p-8">
               {/* Lock overlay */}
-              {!hasFullFormationAccess && (
+              {!hasFullFormationAccess && !isAdmin && (
                 <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-graphite/80 px-2.5 py-1 rounded-full">
                   <Lock className="w-3 h-3 text-muted" />
-                  <span className="text-[10px] text-muted font-medium">Requiere suscripción</span>
+                  <span className="text-[10px] text-muted font-medium">Requiere suscripcion</span>
                 </div>
               )}
 
@@ -184,10 +223,10 @@ export default function HomePage() {
 
               {/* Content */}
               <h3 className="text-2xl font-bold text-offwhite mb-3">
-                Formación
+                Formacion
               </h3>
               <p className="text-muted mb-6">
-                Fórmate en una profesión digital y certifícate
+                Formate en una profesion digital y certificate
               </p>
 
               {/* Features */}
@@ -208,7 +247,7 @@ export default function HomePage() {
 
               {/* CTA */}
               <div className="inline-flex items-center gap-2 text-offwhite font-semibold group-hover:gap-3 transition-all">
-                <span>{hasFullFormationAccess ? 'Ir a Formación' : 'Desbloquear Formación'}</span>
+                <span>{hasFullFormationAccess || isAdmin ? 'Ir a Formacion' : 'Desbloquear Formacion'}</span>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
@@ -216,31 +255,6 @@ export default function HomePage() {
             </div>
           </button>
         </div>
-
-        {/* Admin Panel Card */}
-        {user?.role === 'ADMIN' && (
-          <div className="max-w-5xl mx-auto mt-8">
-            <button
-              onClick={() => navigate('/admin/routes')}
-              className="w-full group relative bg-panel rounded-xl shadow-card transition-all duration-300 overflow-hidden border border-graphite hover:border-accent/30 hover:shadow-glow transform hover:-translate-y-1"
-            >
-              <div className="p-6 flex items-center gap-6">
-                <div className="w-16 h-16 bg-accent/10 rounded-xl flex items-center justify-center transform group-hover:scale-110 transition-transform">
-                  <Shield className="w-8 h-8 text-accent" />
-                </div>
-                <div className="text-left">
-                  <h3 className="text-lg font-bold text-offwhite">Panel de Administracion</h3>
-                  <p className="text-sm text-muted mt-1">Gestiona rutas, formaciones, bloques y clases</p>
-                </div>
-                <div className="ml-auto">
-                  <svg className="w-6 h-6 text-muted group-hover:text-offwhite transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </div>
-              </div>
-            </button>
-          </div>
-        )}
 
         {/* Bottom Info */}
         <div className="mt-16 text-center">
