@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useSubscription } from '../../context/SubscriptionContext';
-import { Building2, GraduationCap, LogOut, Lock, Settings } from 'lucide-react';
+import { Building2, GraduationCap, LogOut, Lock, Settings, Shield } from 'lucide-react';
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -216,6 +216,31 @@ export default function HomePage() {
             </div>
           </button>
         </div>
+
+        {/* Admin Panel Card */}
+        {user?.role === 'ADMIN' && (
+          <div className="max-w-5xl mx-auto mt-8">
+            <button
+              onClick={() => navigate('/admin/routes')}
+              className="w-full group relative bg-panel rounded-xl shadow-card transition-all duration-300 overflow-hidden border border-graphite hover:border-accent/30 hover:shadow-glow transform hover:-translate-y-1"
+            >
+              <div className="p-6 flex items-center gap-6">
+                <div className="w-16 h-16 bg-accent/10 rounded-xl flex items-center justify-center transform group-hover:scale-110 transition-transform">
+                  <Shield className="w-8 h-8 text-accent" />
+                </div>
+                <div className="text-left">
+                  <h3 className="text-lg font-bold text-offwhite">Panel de Administracion</h3>
+                  <p className="text-sm text-muted mt-1">Gestiona rutas, formaciones, bloques y clases</p>
+                </div>
+                <div className="ml-auto">
+                  <svg className="w-6 h-6 text-muted group-hover:text-offwhite transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </div>
+            </button>
+          </div>
+        )}
 
         {/* Bottom Info */}
         <div className="mt-16 text-center">

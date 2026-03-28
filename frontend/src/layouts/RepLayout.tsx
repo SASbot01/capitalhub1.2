@@ -1,13 +1,7 @@
-import { Outlet, useLocation } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import AppHeader from "./AppHeader";
-import ChatBubble from "../components/chat/ChatBubble";
-
-const MARKETPLACE_PATHS = ["/rep/offers", "/rep/applications"];
 
 export default function RepLayout() {
-  const { pathname } = useLocation();
-  const isMarketplace = MARKETPLACE_PATHS.some((p) => pathname.startsWith(p));
-
   return (
     <div className="min-h-screen bg-carbon flex flex-col">
       <AppHeader />
@@ -16,7 +10,6 @@ export default function RepLayout() {
           <Outlet />
         </div>
       </main>
-      {isMarketplace && <ChatBubble context="marketplace" />}
     </div>
   );
 }

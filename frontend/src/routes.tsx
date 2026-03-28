@@ -1,5 +1,4 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
-// 🟢 Importamos el componente de protección
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { RootRedirect } from "./components/RootRedirect";
 import { lazyImport } from "./utils/lazyWithRetry";
@@ -10,6 +9,13 @@ import AuthLayout from "./layouts/AuthLayout";
 import RepLayout from "./layouts/RepLayout";
 import CompanyLayout from "./layouts/CompanyLayout";
 import TrainingLayout from "./layouts/TrainingLayout";
+import AdminLayout from "./layouts/AdminLayout";
+
+// Admin pages
+import AdminRoutesPage from "./pages/admin/AdminRoutesPage";
+import AdminFormationsPage from "./pages/admin/AdminFormationsPage";
+import AdminModulesPage from "./pages/admin/AdminModulesPage";
+import AdminLessonsPage from "./pages/admin/AdminLessonsPage";
 
 // Páginas compartidas
 import HomePage from "./pages/shared/HomePage";
@@ -174,6 +180,25 @@ export const router = createBrowserRouter([
             {
                 index: true,
                 lazy: lazyImport(() => import("./pages/subscription/SuccessPage")),
+            },
+        ],
+    },
+
+    // 2.7. 🛡️ ADMIN PANEL (solo ADMIN)
+    {
+        path: "/admin",
+        errorElement: <ErrorPage />,
+        element: <ProtectedRoute allowedRoles={['ADMIN']} />,
+        children: [
+            {
+                element: <AdminLayout />,
+                children: [
+                    { index: true, element: <Navigate to="/admin/routes" replace /> },
+                    { path: "routes", element: <AdminRoutesPage /> },
+                    { path: "routes/:routeId/formations", element: <AdminFormationsPage /> },
+                    { path: "formations/:formationId/modules", element: <AdminModulesPage /> },
+                    { path: "modules/:moduleId/lessons", element: <AdminLessonsPage /> },
+                ],
             },
         ],
     },

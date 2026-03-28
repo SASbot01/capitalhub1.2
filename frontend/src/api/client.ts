@@ -78,6 +78,7 @@ export const apiClient = {
   post: <T>(path: string, body?: any, auth: boolean = false) => request<T>(path, { method: "POST", body: body ? JSON.stringify(body) : undefined }, auth),
   put: <T>(path: string, body?: any, auth: boolean = false) => request<T>(path, { method: "PUT", body: body ? JSON.stringify(body) : undefined }, auth),
   patch: <T>(path: string, body?: any, auth: boolean = false) => request<T>(path, { method: "PATCH", body: body ? JSON.stringify(body) : undefined }, auth),
+  delete: <T>(path: string, auth: boolean = false) => request<T>(path, { method: "DELETE" }, auth),
 };
 
 // =====================================================
