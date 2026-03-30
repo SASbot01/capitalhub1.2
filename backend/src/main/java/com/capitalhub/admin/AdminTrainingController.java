@@ -76,7 +76,7 @@ public class AdminTrainingController {
     @GetMapping("/routes/{routeId}/formations")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<List<Formation>> getFormationsByRoute(@PathVariable Long routeId) {
-        return ResponseEntity.ok(formationRepository.findByRouteIdAndActiveOrderByDisplayOrder(routeId, true));
+        return ResponseEntity.ok(formationRepository.findByRouteIdOrderByDisplayOrder(routeId));
     }
 
     @GetMapping("/formations")

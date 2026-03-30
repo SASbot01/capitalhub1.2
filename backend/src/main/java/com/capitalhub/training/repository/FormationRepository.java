@@ -10,5 +10,7 @@ import java.util.List;
 public interface FormationRepository extends JpaRepository<Formation, Long> {
     List<Formation> findByRouteIdAndActiveOrderByDisplayOrder(Long routeId, Boolean active);
 
+    List<Formation> findByRouteIdOrderByDisplayOrder(Long routeId);
+
     List<Formation> findByRouteIdAndActiveAndIsIntroModuleOrderByDisplayOrder(Long routeId, Boolean active, Boolean isIntroModule);
 }

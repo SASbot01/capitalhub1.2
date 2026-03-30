@@ -256,6 +256,7 @@ export default function HomePage() {
           </button>
         </div>
 
+
         {/* Bottom Info */}
         <div className="mt-16 text-center">
           <p className="text-muted">
